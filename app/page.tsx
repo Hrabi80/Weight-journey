@@ -1,19 +1,189 @@
-import Image from "next/image";
+"use client";
+
+import { useMemo, useState } from "react";
+import { Activity } from "lucide-react";
+
+import { Dashboard, Profile, WeightEntry } from "@/components/dashboard";
+import { QuestionnaireForm, QuestionnaireData } from "@/components/questionnaire-form";
+import { SignupForm } from "@/components/signup-form";
+import { Button } from "@/components/ui/button";
+import { calculateBMI } from "@/lib/bmi";
+
+type AppState = "questionnaire" | "signup" | "dashboard" | "demo";
+
+const generateDemoData = (): { profile: Profile; entries: WeightEntry[] } => {
+  const today = new Date();
+  const entries: WeightEntry[] = [];
+  let weight = 95;
+
+  for (let i = 29; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    weight = weight - Math.random() * 0.3 + Math.random() * 0.15;
+    weight = Math.max(weight, 82);
+    entries.push({
+      id: `demo-${i}`,
+      weight: parseFloat(weight.toFixed(1)),
+      recordedAt: date.toISOString(),
+    });
+  }
+
+  return {
+    profile: { height: 175, age: 30, initialWeight: 95 },
+    entries,
+  };
+};
+
+const buildUserSession = (data: QuestionnaireData): { profile: Profile; entries: WeightEntry[] } => {
+  const today = new Date();
+  const entries: WeightEntry[] = [];
+  let weight = data.weight;
+
+  for (let i = 14; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    // Gentle downward trend with small daily noise.
+    weight = weight - (Math.random() * 0.25) + Math.random() * 0.1;
+    entries.push({
+      id: `user-${i}`,
+      weight: parseFloat(weight.toFixed(1)),
+      recordedAt: date.toISOString(),
+    });
+  }
+
+  return {
+    profile: {
+      height: data.height,
+      age: data.age,
+      initialWeight: data.weight,
+    },
+    entries,
+  };
+};
 
 export default function Home() {
+  const [state, setState] = useState<AppState>("questionnaire");
+  const [userData, setUserData] = useState<QuestionnaireData | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [entries, setEntries] = useState<WeightEntry[]>([]);
+  const [isLogin, setIsLogin] = useState(false);
+
+  const fallbackData = useMemo(
+    () => ({
+      age: 30,
+      weight: 82,
+      height: 170,
+      bmiResult: calculateBMI(82, 170),
+    }),
+    [],
+  );
+
+  const handleQuestionnaireComplete = (data: QuestionnaireData) => {
+    setUserData(data);
+    setState("signup");
+  };
+
+  const handleSignupComplete = () => {
+    const baseData = userData ?? fallbackData;
+    const session = buildUserSession(baseData);
+    setProfile(session.profile);
+    setEntries(session.entries);
+    setState("dashboard");
+  };
+
+  const handleDemoMode = () => {
+    const session = generateDemoData();
+    setProfile(session.profile);
+    setEntries(session.entries);
+    setState("demo");
+  };
+
+  const handleLogout = () => {
+    setUserData(null);
+    setProfile(null);
+    setEntries([]);
+    setState("questionnaire");
+  };
+
+  if (state === "dashboard" && profile) {
+    return (
+      <Dashboard
+        key={`dashboard-${profile.initialWeight}`}
+        profile={profile}
+        entries={entries}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  if (state === "demo" && profile) {
+    return (
+      <Dashboard
+        key={`demo-${profile.initialWeight}`}
+        profile={profile}
+        entries={entries}
+        onLogout={handleLogout}
+        demoMode
+      />
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-    
-      </main>
-    </div>
+    <>
+      {state === "questionnaire" && (
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center p-4">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Activity className="h-10 w-10 text-primary" />
+              <h1 className="text-4xl font-serif font-bold text-foreground">WeightWise</h1>
+            </div>
+            <p className="text-muted-foreground max-w-md">
+              Your personal weight tracking companion. Start your journey to a healthier you.
+            </p>
+          </div>
+          <QuestionnaireForm onComplete={handleQuestionnaireComplete} />
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <button
+              onClick={() => {
+                setIsLogin(true);
+                setState("signup");
+              }}
+              className="text-sm text-primary hover:underline"
+            >
+              Already have an account? Sign in
+            </button>
+            <Button variant="outline" onClick={handleDemoMode} className="text-sm">
+              Try Demo Mode
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {state === "signup" && (
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center p-4">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Activity className="h-10 w-10 text-primary" />
+              <h1 className="text-4xl font-serif font-bold text-foreground">WeightWise</h1>
+            </div>
+          </div>
+          <SignupForm
+            userData={userData ?? fallbackData}
+            onComplete={handleSignupComplete}
+            onToggleMode={() => setIsLogin((prev) => !prev)}
+            isLogin={isLogin}
+          />
+          {!isLogin && (
+            <button
+              onClick={() => setState("questionnaire")}
+              className="mt-6 text-sm text-muted-foreground hover:text-primary"
+            >
+              ← Back to questionnaire
+            </button>
+          )}
+        </div>
+      )}
+    </>
   );
 }
