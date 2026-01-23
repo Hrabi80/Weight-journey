@@ -10,6 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import { Box, Flex, Grid, Text, Title } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,8 +20,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { calculateBMI } from "@/lib/bmi";
 import { WeightChart } from "@/components/weight-chart";
+import { calculateBMI } from "@/lib/bmi";
 
 export interface Profile {
   height: number;
@@ -106,93 +107,135 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+    <Box className="min-h-screen bg-background">
+      <Box as="header" className="border-b border-border bg-card">
+        <Flex
+          className="container mx-auto"
+          px="md"
+          py="md"
+          align="center"
+          justify="space-between"
+          gap="md"
+        >
+          <Flex align="center" gap="xs">
             <Activity className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-serif font-bold text-foreground">WeightWise</h1>
+            <Title
+              order={1}
+              size="h4"
+              fw="bold"
+              className="font-serif text-foreground"
+            >
+              WeightWise
+            </Title>
             {demoMode && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+              <Box
+                as="span"
+                px="xs"
+                py="xs"
+                radius="full"
+                className="text-xs bg-primary/10 text-primary"
+              >
                 Demo
-              </span>
+              </Box>
             )}
-          </div>
+          </Flex>
           <Button variant="ghost" onClick={onLogout}>
             <LogOut className="h-4 w-4 mr-2" />
             {demoMode ? "Back" : "Logout"}
           </Button>
-        </div>
-      </header>
+        </Flex>
+      </Box>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="border-0 shadow-md bg-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Current Weight</p>
-                  <p className="text-2xl font-bold text-foreground">{latestWeight} kg</p>
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Target className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <Box as="main" className="container mx-auto  max-w-4xl" px="md" py="xl">
+        <Grid columns={12} gutter="md" className="mb-8">
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card className="border-0 shadow-lg bg-card h-full">
+              <CardContent className="pt-6 h-full">
+                <Flex align="center" justify="space-between">
+                  <Box>
+                    <Text size="sm" className="text-muted-foreground">
+                      Current Weight
+                    </Text>
+                    <Text size="xl" fw="bold" className="text-foreground">
+                      {latestWeight} kg
+                    </Text>
+                  </Box>
+                  <Box p="sm" radius="full" className="bg-primary/10">
+                    <Target className="h-5 w-5 text-primary" />
+                  </Box>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Grid.Col>
 
-          <Card className="border-0 shadow-md bg-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Change</p>
-                  <p
-                    className={`text-2xl font-bold ${
-                      weightChange <= 0 ? "text-zone-healthy" : "text-zone-overweight"
-                    }`}
-                  >
-                    {weightChange > 0 ? "+" : ""}
-                    {weightChange.toFixed(1)} kg
-                  </p>
-                </div>
-                <div
-                  className={`p-3 rounded-full ${
-                    weightChange <= 0 ? "bg-zone-healthy/10" : "bg-zone-overweight/10"
-                  }`}
-                >
-                  {weightChange <= 0 ? (
-                    <TrendingDown
-                      className={`h-5 w-5 ${
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card className="border-0 shadow-md bg-card h-full">
+              <CardContent className="pt-6 h-full">
+                <Flex align="center" justify="space-between">
+                  <Box>
+                    <Text size="sm" className="text-muted-foreground">
+                      Total Change
+                    </Text>
+                    <Text
+                      size="xl"
+                      fw="bold"
+                      className={
                         weightChange <= 0 ? "text-zone-healthy" : "text-zone-overweight"
-                      }`}
-                    />
-                  ) : (
-                    <TrendingUp className="h-5 w-5 text-zone-overweight" />
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                      }
+                    >
+                      {weightChange > 0 ? "+" : ""}
+                      {weightChange.toFixed(1)} kg
+                    </Text>
+                  </Box>
+                  <Box
+                    p="sm"
+                    radius="full"
+                    className={
+                      weightChange <= 0 ? "bg-zone-healthy/10" : "bg-zone-overweight/10"
+                    }
+                  >
+                    {weightChange <= 0 ? (
+                      <TrendingDown
+                        className={
+                          weightChange <= 0 ? "text-zone-healthy h-5 w-5" : "text-zone-overweight h-5 w-5"
+                        }
+                      />
+                    ) : (
+                      <TrendingUp className="h-5 w-5 text-zone-overweight" />
+                    )}
+                  </Box>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Grid.Col>
 
-          <Card className="border-0 shadow-md bg-card">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Current BMI</p>
-                  <p className={`text-2xl font-bold ${getCategoryColor(bmiResult.category)}`}>
-                    {bmiResult.bmi.toFixed(1)}
-                  </p>
-                  <p className={`text-xs ${getCategoryColor(bmiResult.category)}`}>
-                    {bmiResult.label}
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
-                  <Activity className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card className="border-0 shadow-md bg-card h-full">
+              <CardContent className="pt-6 h-full">
+                <Flex align="center" justify="space-between">
+                  <Box>
+                    <Text size="sm" className="text-muted-foreground">
+                      Current BMI
+                    </Text>
+                    <Text
+                      size="xl"
+                      fw="bold"
+                      className={getCategoryColor(bmiResult.category)}
+                    >
+                      {bmiResult.bmi.toFixed(1)}
+                    </Text>
+                    <Text size="xs" className={getCategoryColor(bmiResult.category)}>
+                      {bmiResult.label}
+                    </Text>
+                  </Box>
+                  <Box p="sm" radius="full" className="bg-primary/10">
+                    <Activity className="h-5 w-5 text-primary" />
+                  </Box>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Grid.Col>
+        </Grid>
 
         <Card className="mb-8 border-0 shadow-md bg-card">
           <CardHeader>
@@ -200,7 +243,7 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
             <CardDescription>Track your daily progress</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Flex direction={{ base: "column", sm: "row" }} gap="sm" align={{ sm: "center" }}>
               <Input
                 type="number"
                 placeholder="Enter weight in kg"
@@ -215,20 +258,21 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
                 <Plus className="h-4 w-4 mr-2" />
                 Log Weight
               </Button>
-            </div>
+            </Flex>
             {status && (
-              <p
-                className={`mt-2 text-sm ${
+              <Text
+                size="sm"
+                className={`mt-2 ${
                   status.type === "error" ? "text-destructive" : "text-muted-foreground"
                 }`}
               >
                 {status.text}
-              </p>
+              </Text>
             )}
             {demoMode && (
-              <p className="mt-2 text-xs text-muted-foreground">
+              <Text size="xs" className="mt-2 text-muted-foreground">
                 Demo mode resets when you leave this page. Sign up to keep your progress.
-              </p>
+              </Text>
             )}
           </CardContent>
         </Card>
@@ -242,13 +286,17 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
             {weights.length > 0 ? (
               <WeightChart data={weights} height={profile.height} />
             ) : (
-              <div className="h-80 flex items-center justify-center text-muted-foreground">
-                <p>No weight entries yet. Start by logging your weight above!</p>
-              </div>
+              <Flex
+                className="h-80 text-muted-foreground"
+                align="center"
+                justify="center"
+              >
+                <Text>No weight entries yet. Start by logging your weight above!</Text>
+              </Flex>
             )}
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }

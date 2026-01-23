@@ -7,8 +7,8 @@ import { Dashboard, Profile, WeightEntry } from "@/components/dashboard";
 import { QuestionnaireForm, QuestionnaireData } from "@/components/questionnaire-form";
 import { SignupForm } from "@/components/signup-form";
 import { Button } from "@/components/ui/button";
-import { calculateBMI } from "@/lib/bmi";
 import { Box, Flex } from "@/components/layout";
+import { calculateBMI } from "@/lib/bmi";
 
 type AppState = "questionnaire" | "signup" | "dashboard" | "demo";
 

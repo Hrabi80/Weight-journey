@@ -143,10 +143,7 @@ const config: Config = {
    * If you're using `tw-animate-css`, you typically don't need this plugin.
    * If you're using `tailwindcss-animate`, enable it here.
    */
-  plugins: [
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require("tailwindcss-animate"),
-  ],
+
 };
 
 export default config;

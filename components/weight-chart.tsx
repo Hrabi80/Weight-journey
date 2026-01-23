@@ -154,10 +154,10 @@ export function WeightChart({ data, height }: WeightChartProps) {
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="hsl(var(--primary))"
+            stroke="var(--primary)"
             strokeWidth={3}
-            dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 5, stroke: "hsl(var(--card))" }}
-            activeDot={{ r: 7, stroke: "hsl(var(--primary))", strokeWidth: 2, fill: "hsl(var(--card))" }}
+            dot={{ fill: "var(--primary)", strokeWidth: 2, r: 5, stroke: "var(--primary)" }}
+            activeDot={{ r: 7, stroke: "red", strokeWidth: 2, fill: "var(--card)" }}
           />
         </ComposedChart>
       </ResponsiveContainer>
