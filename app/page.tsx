@@ -8,6 +8,7 @@ import { QuestionnaireForm, QuestionnaireData } from "@/components/questionnaire
 import { SignupForm } from "@/components/signup-form";
 import { Button } from "@/components/ui/button";
 import { calculateBMI } from "@/lib/bmi";
+import { Box, Flex } from "@/components/layout";
 
 type AppState = "questionnaire" | "signup" | "dashboard" | "demo";
 
@@ -132,14 +133,19 @@ export default function Home() {
   return (
     <>
       {state === "questionnaire" && (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center p-4">
-          <div className="text-center mb-8">
+        <Flex gap={"sm"} justify={"space-between"} direction={"column"} shadow={"xl"} color="yellow">
+       <div className="py-4 w-[100px]" style={{backgroundColor:"red"}}>01</div>
+       <Box className="py-6 background-red">
+
+      
+        <Box className="min-h-screen align-center" shadow={"xl"} px={"xl"} py="xl" radius="xl" mt={"xs"} ml={"xl"} >
+          <div className="text-center mb-8 ">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Activity className="h-10 w-10 text-primary" />
-              <h1 className="text-4xl font-serif font-bold text-foreground">WeightWise</h1>
+              <h1 className="text-4xl font-serif font-bold text-foreground">WeightWise mm</h1>
             </div>
-            <p className="text-muted-foreground max-w-md">
-              Your personal weight tracking companion. Start your journey to a healthier you.
+            <p className="text-muted-foreground max-w-md align-center mx-auto">
+              Your personal weight tracking companion. Start your journey to a healthier youddd.
             </p>
           </div>
           <QuestionnaireForm onComplete={handleQuestionnaireComplete} />
@@ -157,7 +163,10 @@ export default function Home() {
               Try Demo Mode
             </Button>
           </div>
-        </div>
+        </Box>
+         </Box>
+        <div className="py-8">03</div>
+        </Flex>
       )}
 
       {state === "signup" && (

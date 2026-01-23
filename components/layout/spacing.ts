@@ -3,7 +3,9 @@ import { to_entries, tw_prefix } from "./responsive";
 
 export type SpacingToken = "none" | "xs" | "sm" | "md" | "lg" | "xl";
 
-const SPACING_TO_TW: Record<SpacingToken, string> = {
+export const SPACING_TOKENS: SpacingToken[] = ["none", "xs", "sm", "md", "lg", "xl"];
+
+export const SPACING_TO_TW: Record<SpacingToken, string> = {
   none: "0",
   xs: "2",
   sm: "3",
@@ -11,6 +13,10 @@ const SPACING_TO_TW: Record<SpacingToken, string> = {
   lg: "6",
   xl: "8",
 };
+
+export function is_spacing_token(value: unknown): value is SpacingToken {
+  return typeof value === "string" && (SPACING_TOKENS as string[]).includes(value);
+}
 
 type SpacingKind =
   | "p"
