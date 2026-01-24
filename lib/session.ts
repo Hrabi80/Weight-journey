@@ -1,0 +1,62 @@
+import { calculateBMI } from "./bmi";
+import { Profile, QuestionnaireData, WeightEntry } from "./types";
+
+export const FALLBACK_QUESTIONNAIRE: QuestionnaireData = {
+  age: 30,
+  weight: 82,
+  height: 170,
+  bmiResult: calculateBMI(82, 170),
+};
+
+export const generateDemoData = (): { profile: Profile; entries: WeightEntry[] } => {
+  const today = new Date();
+  const entries: WeightEntry[] = [];
+  let weight = 95;
+
+  for (let i = 29; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    weight = weight - Math.random() * 0.3 + Math.random() * 0.15;
+    weight = Math.max(weight, 82);
+    entries.push({
+      id: `demo-${i}`,
+      weight: parseFloat(weight.toFixed(1)),
+      recordedAt: date.toISOString(),
+    });
+  }
+
+  return {
+    profile: { height: 175, age: 30, initialWeight: 95 },
+    entries,
+  };
+};
+
+export const buildUserSession = (
+  data: QuestionnaireData,
+): { profile: Profile; entries: WeightEntry[] } => {
+  const today = new Date();
+  const entries: WeightEntry[] = [];
+  let weight = data.weight;
+
+  for (let i = 14; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    // Gentle downward trend with small daily noise.
+    weight = weight - Math.random() * 0.25 + Math.random() * 0.1;
+    entries.push({
+      id: `user-${i}`,
+      weight: parseFloat(weight.toFixed(1)),
+      recordedAt: date.toISOString(),
+    });
+  }
+
+  return {
+    profile: {
+      height: data.height,
+      age: data.age,
+      initialWeight: data.weight,
+    },
+    entries,
+  };
+};

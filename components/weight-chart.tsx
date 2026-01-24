@@ -16,7 +16,7 @@ import {
 import { format } from "date-fns";
 
 import { getBMIForWeight, getWeightRanges } from "@/lib/bmi";
-import type { WeightEntry } from "@/components/dashboard";
+import type { WeightEntry } from "@/lib/types";
 
 interface WeightChartProps {
   data: WeightEntry[];

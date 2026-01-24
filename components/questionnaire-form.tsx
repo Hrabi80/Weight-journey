@@ -14,13 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BMIResult, calculateBMI } from "@/lib/bmi";
-
-export interface QuestionnaireData {
-  age: number;
-  weight: number;
-  height: number;
-  bmiResult: BMIResult;
-}
+import { QuestionnaireData } from "@/lib/types";
 
 interface QuestionnaireFormProps {
   onComplete: (data: QuestionnaireData) => void;

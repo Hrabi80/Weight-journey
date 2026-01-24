@@ -1,196 +1,120 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Activity } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Activity, ArrowRight, BarChart3, TrendingDown, Users } from "lucide-react";
 
-import { Dashboard, Profile, WeightEntry } from "@/components/dashboard";
-import { QuestionnaireForm, QuestionnaireData } from "@/components/questionnaire-form";
-import { SignupForm } from "@/components/signup-form";
 import { Button } from "@/components/ui/button";
-import { Box, Flex } from "@/components/layout";
-import { calculateBMI } from "@/lib/bmi";
-
-type AppState = "questionnaire" | "signup" | "dashboard" | "demo";
-
-const generateDemoData = (): { profile: Profile; entries: WeightEntry[] } => {
-  const today = new Date();
-  const entries: WeightEntry[] = [];
-  let weight = 95;
-
-  for (let i = 29; i >= 0; i -= 1) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    weight = weight - Math.random() * 0.3 + Math.random() * 0.15;
-    weight = Math.max(weight, 82);
-    entries.push({
-      id: `demo-${i}`,
-      weight: parseFloat(weight.toFixed(1)),
-      recordedAt: date.toISOString(),
-    });
-  }
-
-  return {
-    profile: { height: 175, age: 30, initialWeight: 95 },
-    entries,
-  };
-};
-
-const buildUserSession = (data: QuestionnaireData): { profile: Profile; entries: WeightEntry[] } => {
-  const today = new Date();
-  const entries: WeightEntry[] = [];
-  let weight = data.weight;
-
-  for (let i = 14; i >= 0; i -= 1) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-
-    // Gentle downward trend with small daily noise.
-    weight = weight - (Math.random() * 0.25) + Math.random() * 0.1;
-    entries.push({
-      id: `user-${i}`,
-      weight: parseFloat(weight.toFixed(1)),
-      recordedAt: date.toISOString(),
-    });
-  }
-
-  return {
-    profile: {
-      height: data.height,
-      age: data.age,
-      initialWeight: data.weight,
-    },
-    entries,
-  };
-};
+import { Box, Flex, Grid, Text, Title } from "@/components/layout";
 
 export default function Home() {
-  const [state, setState] = useState<AppState>("questionnaire");
-  const [userData, setUserData] = useState<QuestionnaireData | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [entries, setEntries] = useState<WeightEntry[]>([]);
-  const [isLogin, setIsLogin] = useState(false);
-
-  const fallbackData = useMemo(
-    () => ({
-      age: 30,
-      weight: 82,
-      height: 170,
-      bmiResult: calculateBMI(82, 170),
-    }),
-    [],
-  );
-
-  const handleQuestionnaireComplete = (data: QuestionnaireData) => {
-    setUserData(data);
-    setState("signup");
-  };
-
-  const handleSignupComplete = () => {
-    const baseData = userData ?? fallbackData;
-    const session = buildUserSession(baseData);
-    setProfile(session.profile);
-    setEntries(session.entries);
-    setState("dashboard");
-  };
-
-  const handleDemoMode = () => {
-    const session = generateDemoData();
-    setProfile(session.profile);
-    setEntries(session.entries);
-    setState("demo");
-  };
-
-  const handleLogout = () => {
-    setUserData(null);
-    setProfile(null);
-    setEntries([]);
-    setState("questionnaire");
-  };
-
-  if (state === "dashboard" && profile) {
-    return (
-      <Dashboard
-        key={`dashboard-${profile.initialWeight}`}
-        profile={profile}
-        entries={entries}
-        onLogout={handleLogout}
-      />
-    );
-  }
-
-  if (state === "demo" && profile) {
-    return (
-      <Dashboard
-        key={`demo-${profile.initialWeight}`}
-        profile={profile}
-        entries={entries}
-        onLogout={handleLogout}
-        demoMode
-      />
-    );
-  }
+  const router = useRouter();
 
   return (
-    <>
-      {state === "questionnaire" && (
-        <Flex gap={"sm"} justify={"center"} align={"center"} shadow={"xl"} color="yellow" className="min-w-dhv bg-blue-50" >
-       <Box className="py-6 ">
-
+    <Box className="min-h-screen flex flex-col bg-gradient-hero">
       
-        <Box className="min-h-screen bg-yellow-50 align-center" shadow={"xl"} px={"xl"} py="xl" radius="xl" mt={"xs"} ml={"xl"} >
-          <div className="text-center mb-8 ">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Activity className="h-10 w-10 text-primary" />
-              <h1 className="text-4xl font-serif font-bold text-foreground">WeightWise mm</h1>
-            </div>
-            <p className="text-muted-foreground max-w-md align-center mx-auto">
-              Your personal weight tracking companion. Start your journey to a healthier youddd.
-            </p>
-          </div>
-          <QuestionnaireForm onComplete={handleQuestionnaireComplete} />
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <button
-              onClick={() => {
-                setIsLogin(true);
-                setState("signup");
-              }}
-              className="text-sm text-primary hover:underline"
-            >
-              Already have an account? Sign in
-            </button>
-            <Button variant="outline" onClick={handleDemoMode} className="text-sm">
-              Try Demo Mode
-            </Button>
-          </div>
-        </Box>
-         </Box>
-        </Flex>
-      )}
 
-      {state === "signup" && (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center p-4">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
+      <Box as="main" className="flex-1">
+        <Flex
+          direction="column"
+          align="center"
+          className="container mx-auto px-4 py-12 sm:py-16"
+          gap="xl"
+        >
+          <Box className="max-w-4xl text-center animate-fade-in-up">
+            <Box className="inline-flex items-center justify-center p-4 rounded-2xl bg-card shadow-card border border-border/60 mb-6">
               <Activity className="h-10 w-10 text-primary" />
-              <h1 className="text-4xl font-serif font-bold text-foreground">WeightWise</h1>
-            </div>
-          </div>
-          <SignupForm
-            userData={userData ?? fallbackData}
-            onComplete={handleSignupComplete}
-            onToggleMode={() => setIsLogin((prev) => !prev)}
-            isLogin={isLogin}
-          />
-          {!isLogin && (
-            <button
-              onClick={() => setState("questionnaire")}
-              className="mt-6 text-sm text-muted-foreground hover:text-primary"
+            </Box>
+            <Title
+              order={1}
+              size={{ base: "h2", sm: "h1" }}
+              fw="bold"
+              className="font-serif text-4xl sm:text-5xl md:text-6xl text-foreground leading-tight"
             >
-              ← Back to questionnaire
-            </button>
-          )}
-        </div>
-      )}
-    </>
+              Track your{" "}
+              <span className="text-gradient-primary">wellness journey</span>{" "}
+              with clarity
+            </Title>
+            <Text className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mt-4 leading-relaxed">
+              Log your weight, monitor sleep, calories, and steps, and see beautiful
+              insights that keep you motivated.
+            </Text>
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              align="center"
+              justify="center"
+              gap="sm"
+              mt="lg"
+            >
+              <Button
+                size="lg"
+                className="px-8 py-6 rounded-xl shadow-soft text-base"
+                onClick={() => router.push("/questionnaire")}
+              >
+                Start the questionnaire
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 rounded-xl text-base border-2"
+                onClick={() => router.push("/questionnaire?mode=login")}
+              >
+                I already have an account
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="px-8 py-6 rounded-xl text-base shadow-soft"
+                onClick={() => router.push("/dashboard?demo=1")}
+              >
+                Demo mode
+              </Button>
+            </Flex>
+          </Box>
+
+          <Grid columns={{ base: 1, sm: 3 }} gutter="lg" className="w-full max-w-4xl">
+            <Grid.Col>
+              <Box className="p-6 rounded-2xl bg-card shadow-card border border-border/60 card-hover h-full">
+                <Box className="p-3 rounded-xl bg-primary/10 w-fit mb-4">
+                  <TrendingDown className="h-6 w-6 text-primary" />
+                </Box>
+                <Title order={3} size="h5" fw="semibold" className="text-foreground">
+                  Track progress
+                </Title>
+                <Text className="text-sm text-muted-foreground mt-2">
+                  Log weight daily and watch trends with BMI-colored zones.
+                </Text>
+              </Box>
+            </Grid.Col>
+            <Grid.Col>
+              <Box className="p-6 rounded-2xl bg-card shadow-card border border-border/60 card-hover h-full">
+                <Box className="p-3 rounded-xl bg-primary/10 w-fit mb-4">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </Box>
+                <Title order={3} size="h5" fw="semibold" className="text-foreground">
+                  Visual insights
+                </Title>
+                <Text className="text-sm text-muted-foreground mt-2">
+                  Wellness charts for sleep, calories, and steps alongside weight.
+                </Text>
+              </Box>
+            </Grid.Col>
+            <Grid.Col>
+              <Box className="p-6 rounded-2xl bg-card shadow-card border border-border/60 card-hover h-full">
+                <Box className="p-3 rounded-xl bg-primary/10 w-fit mb-4">
+                  <Users className="h-6 w-6 text-primary" />
+                </Box>
+                <Title order={3} size="h5" fw="semibold" className="text-foreground">
+                  Stay accountable
+                </Title>
+                <Text className="text-sm text-muted-foreground mt-2">
+                  Export-ready data to share with your coach or nutritionist.
+                </Text>
+              </Box>
+            </Grid.Col>
+          </Grid>
+        </Flex>
+      </Box>
+    </Box>
   );
 }

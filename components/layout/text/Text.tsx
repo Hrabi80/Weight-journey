@@ -234,7 +234,8 @@ function apply_weight(
 
   for (const [bp, v] of to_entries(value)) {
     if (typeof v === "string" && v in FONT_WEIGHT_TOKEN_CLASSES) {
-      classes.push(FONT_WEIGHT_TOKEN_CLASSES[v as keyof typeof FONT_WEIGHT_TOKEN_CLASSES][bp as keyof ClassNameVariants]);
+      const key = v as keyof typeof FONT_WEIGHT_TOKEN_CLASSES;
+      classes.push(FONT_WEIGHT_TOKEN_CLASSES[key][bp as keyof ClassNameVariants]);
     } else if (typeof v === "number" && v >= 100 && v <= 900 && v % 100 === 0) {
       const mapped = map_weight_token(v as FontWeightToken);
       classes.push(FONT_WEIGHT_TOKEN_CLASSES[mapped][bp as keyof ClassNameVariants]);
