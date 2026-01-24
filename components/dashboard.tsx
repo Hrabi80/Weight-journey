@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { WeightChart } from "@/components/weight-chart";
+import KPICard from "@/components/KpiCard";
 import { calculateBMI } from "@/lib/bmi";
 
 export interface Profile {
@@ -149,91 +150,56 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
       <Box as="main" className="container mx-auto  max-w-4xl" px="md" py="xl">
         <Grid columns={12} gutter="md" className="mb-8">
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <Card className="border-0 shadow-lg bg-card h-full">
-              <CardContent className="pt-6 h-full">
-                <Flex align="center" justify="space-between">
-                  <Box>
-                    <Text size="sm" className="text-muted-foreground">
-                      Current Weight
-                    </Text>
-                    <Text size="xl" fw="bold" className="text-foreground">
-                      {latestWeight} kg
-                    </Text>
-                  </Box>
-                  <Box p="sm" radius="full" className="bg-primary/10">
-                    <Target className="h-5 w-5 text-primary" />
-                  </Box>
-                </Flex>
-              </CardContent>
-            </Card>
+            <KPICard
+              title="Current Weight"
+              value={`${latestWeight} kg`}
+              icon={<Target className="h-5 w-5 text-primary" />}
+            />
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <Card className="border-0 shadow-md bg-card h-full">
-              <CardContent className="pt-6 h-full">
-                <Flex align="center" justify="space-between">
-                  <Box>
-                    <Text size="sm" className="text-muted-foreground">
-                      Total Change
-                    </Text>
-                    <Text
-                      size="xl"
-                      fw="bold"
-                      className={
-                        weightChange <= 0 ? "text-zone-healthy" : "text-zone-overweight"
-                      }
-                    >
-                      {weightChange > 0 ? "+" : ""}
-                      {weightChange.toFixed(1)} kg
-                    </Text>
-                  </Box>
-                  <Box
-                    p="sm"
-                    radius="full"
+            <KPICard
+              title="Total Change"
+              value={
+                <>
+                  {weightChange > 0 ? "+" : ""}
+                  {weightChange.toFixed(1)} kg
+                </>
+              }
+              valueClassName={
+                weightChange <= 0 ? "text-zone-healthy" : "text-zone-overweight"
+              }
+              iconContainerClassName={
+                weightChange <= 0 ? "bg-zone-healthy/10" : "bg-zone-overweight/10"
+              }
+              icon={
+                weightChange <= 0 ? (
+                  <TrendingDown
                     className={
-                      weightChange <= 0 ? "bg-zone-healthy/10" : "bg-zone-overweight/10"
+                      weightChange <= 0
+                        ? "text-zone-healthy h-5 w-5"
+                        : "text-zone-overweight h-5 w-5"
                     }
-                  >
-                    {weightChange <= 0 ? (
-                      <TrendingDown
-                        className={
-                          weightChange <= 0 ? "text-zone-healthy h-5 w-5" : "text-zone-overweight h-5 w-5"
-                        }
-                      />
-                    ) : (
-                      <TrendingUp className="h-5 w-5 text-zone-overweight" />
-                    )}
-                  </Box>
-                </Flex>
-              </CardContent>
-            </Card>
+                  />
+                ) : (
+                  <TrendingUp className="h-5 w-5 text-zone-overweight" />
+                )
+              }
+            />
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <Card className="border-0 shadow-md bg-card h-full">
-              <CardContent className="pt-6 h-full">
-                <Flex align="center" justify="space-between">
-                  <Box>
-                    <Text size="sm" className="text-muted-foreground">
-                      Current BMI
-                    </Text>
-                    <Text
-                      size="xl"
-                      fw="bold"
-                      className={getCategoryColor(bmiResult.category)}
-                    >
-                      {bmiResult.bmi.toFixed(1)}
-                    </Text>
-                    <Text size="xs" className={getCategoryColor(bmiResult.category)}>
-                      {bmiResult.label}
-                    </Text>
-                  </Box>
-                  <Box p="sm" radius="full" className="bg-primary/10">
-                    <Activity className="h-5 w-5 text-primary" />
-                  </Box>
-                </Flex>
-              </CardContent>
-            </Card>
+            <KPICard
+              title="Current BMI"
+              value={bmiResult.bmi.toFixed(1)}
+              valueClassName={getCategoryColor(bmiResult.category)}
+              subTitle={
+                <Text size="xs" className={getCategoryColor(bmiResult.category)}>
+                  {bmiResult.label}
+                </Text>
+              }
+              icon={<Activity className="h-5 w-5 text-primary" />}
+            />
           </Grid.Col>
         </Grid>
 
