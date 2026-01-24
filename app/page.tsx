@@ -133,12 +133,11 @@ export default function Home() {
   return (
     <>
       {state === "questionnaire" && (
-        <Flex gap={"sm"} justify={"space-between"} direction={"column"} shadow={"xl"} color="yellow">
-       <div className="py-4 w-[100px]" style={{backgroundColor:"red"}}>01</div>
-       <Box className="py-6 background-red">
+        <Flex gap={"sm"} justify={"center"} align={"center"} shadow={"xl"} color="yellow" className="min-w-dhv bg-blue-50" >
+       <Box className="py-6 ">
 
       
-        <Box className="min-h-screen align-center" shadow={"xl"} px={"xl"} py="xl" radius="xl" mt={"xs"} ml={"xl"} >
+        <Box className="min-h-screen bg-yellow-50 align-center" shadow={"xl"} px={"xl"} py="xl" radius="xl" mt={"xs"} ml={"xl"} >
           <div className="text-center mb-8 ">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Activity className="h-10 w-10 text-primary" />
@@ -165,7 +164,6 @@ export default function Home() {
           </div>
         </Box>
          </Box>
-        <div className="py-8">03</div>
         </Flex>
       )}
 
