@@ -62,9 +62,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.67 0.16 58);
+  --primary: rgb(245, 158, 11);
   --primary-foreground: oklch(0.99 0.02 95);
-  --secondary: oklch(0.967 0.001 286.375);
+  --secondary: #374151;
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -104,7 +104,7 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.77 0.16 70);
   --primary-foreground: oklch(0.28 0.07 46);
-  --secondary: oklch(0.274 0.006 286.033);
+  --secondary: #374151;
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
@@ -145,39 +145,46 @@
 }
 
 @layer utilities {
-   .bg-gradient-hero {
-    position: relative;
-    background-image: linear-gradient(
-      135deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--accent)) 40%,
-      hsl(var(--primary) / 0.95) 100%
+.bg-gradient-hero {
+  background:
+    /* White edges + warm center band (primary-tinted) */
+    linear-gradient(
+      90deg,
+      rgb(255, 255, 255) 0%,
+      rgb(255, 255, 255) 22%,
+      rgb(255, 251, 235) 50%, /* warm center tint (amber-50-ish) */
+      rgb(255, 255, 255) 78%,
+      rgb(255, 255, 255) 100%
+    ),
+    /* Primary glow (top) */
+    radial-gradient(
+      1000px 600px at 50% 25%,
+      rgba(245, 158, 11, 0.18), /* primary */
+      rgba(245, 158, 11, 0.00) 60%
+    ),
+    /* Secondary warm glow (bottom) */
+    radial-gradient(
+      900px 560px at 50% 70%,
+      rgba(251, 191, 36, 0.14), /* amber-400-ish, harmonious */
+      rgba(251, 191, 36, 0.00) 62%
     );
-    overflow: hidden;
-  }
+}
 
-  .bg-gradient-hero::before {
-    content: "";
-    position: absolute;
-    inset: -40%;
-    pointer-events: none;
 
-    /* subtle glow blob */
-    background: radial-gradient(
-      circle at top left,
-      hsl(var(--primary) / 0.25),
-      transparent 55%
-    );
-    filter: blur(24px);
-    opacity: 0.9;
-  }
 
-  .bg-gradient-hero > * {
-    position: relative;
-    z-index: 1;
-  }
+
+
+
+
+
+
   .text-gradient-primary {
-    background-image: linear-gradient(120deg, hsl(var(--primary)) 0%, hsl(var(--accent-foreground)) 45%, hsl(var(--primary)) 90%);
+    background-image: linear-gradient(
+      120deg,
+      var(--primary) 0%,
+      var(--accent-foreground) 45%,
+      var(--primary) 90%
+    );
     -webkit-background-clip: text;
     color: transparent;
   }

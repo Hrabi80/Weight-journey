@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 
 export function Header() {
   return (
-    <Box as="header" className="w-full bg-gradient-hero header-shadow">
+    <Box as="header" className="w-full header-shadow position-fix">
       <Flex
         className="container mx-auto py-4"
         px="md"

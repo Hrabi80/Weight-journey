@@ -1,24 +1,17 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { Activity, ArrowRight, BarChart3, TrendingDown, Users } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { Box, Flex, Grid, Text, Title } from "@/components/layout";
-
+import { Box, Container, Flex, Grid, Stack, Text, Title } from "@/components/layout";
+import "./styles.css"
+import Link from "next/link";
 export default function Home() {
-  const router = useRouter();
+
 
   return (
-    <Box className="min-h-screen flex flex-col bg-gradient-hero">
-      
-
-      <Box as="main" className="flex-1">
-        <Flex
-          direction="column"
+    <Container axisX={'extraLarge'} axisY={"hero"} className="bg-gradient-hero" >
+        <Stack
           align="center"
-          className="container mx-auto px-4 py-12 sm:py-16"
           gap="xl"
+          
         >
           <Box className="max-w-4xl text-center animate-fade-in-up">
             <Box className="inline-flex items-center justify-center p-4 rounded-2xl bg-card shadow-card border border-border/60 mb-6">
@@ -45,30 +38,37 @@ export default function Home() {
               gap="sm"
               mt="lg"
             >
+              
+              <Link href={"/questionnaire"}>
               <Button
                 size="lg"
-                className="px-8 py-6 rounded-xl shadow-soft text-base"
-                onClick={() => router.push("/questionnaire")}
+                className="px-8 py-6 rounded-xl shadow-soft text-base cursor-pointer"
+                
               >
                 Start the questionnaire
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+                </Link>
+                <Link href={"/questionnaire?mode=login"}>
               <Button
                 size="lg"
                 variant="outline"
-                className="px-8 py-6 rounded-xl text-base border-2"
-                onClick={() => router.push("/questionnaire?mode=login")}
+                className="px-8 py-6 rounded-xl text-base border-2 cursor-pointer"
               >
+                   
                 I already have an account
               </Button>
+                </Link>
+                <Link href={"/dashboard?demo=1"}>
               <Button
                 size="lg"
                 variant="secondary"
-                className="px-8 py-6 rounded-xl text-base shadow-soft"
-                onClick={() => router.push("/dashboard?demo=1")}
+                className="px-8 py-6 rounded-xl text-base shadow-soft cursor-pointer"
               >
+                
                 Demo mode
               </Button>
+                 </Link>
             </Flex>
           </Box>
 
@@ -113,8 +113,7 @@ export default function Home() {
               </Box>
             </Grid.Col>
           </Grid>
-        </Flex>
-      </Box>
-    </Box>
+        </Stack>
+   </Container>
   );
 }

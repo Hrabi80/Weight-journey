@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   Activity,
   LogOut,
@@ -12,7 +13,7 @@ import {
 
 import { AdditionalTrackers } from "@/components/additional-trackers";
 import KPICard from "@/components/KpiCard";
-import { WellnessMetricsChart, type CaloriesEntry, type SleepEntry, type StepsEntry } from "@/components/wellness-metrics-chart";
+import type { CaloriesEntry, SleepEntry, StepsEntry } from "@/components/wellness-metrics-chart";
 import { Box, Flex, Grid, Text, Title } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +24,32 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { WeightChart } from "@/components/weight-chart";
 import { calculateBMI } from "@/lib/bmi";
 import { Profile, WeightEntry } from "@/lib/types";
+
+const WeightChart = dynamic(
+  () => import("./weight-chart").then((mod) => mod.WeightChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-80 items-center justify-center rounded-xl bg-muted/30 text-sm text-muted-foreground">
+        Loading weight chart…
+      </div>
+    ),
+  },
+);
+
+const WellnessMetricsChart = dynamic(
+  () => import("./wellness-metrics-chart").then((mod) => mod.WellnessMetricsChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[280px] items-center justify-center rounded-xl bg-muted/30 text-sm text-muted-foreground">
+        Loading wellness metrics…
+      </div>
+    ),
+  },
+);
 
 interface DashboardProps {
   profile: Profile;
@@ -189,45 +213,7 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
 
   return (
     <Box className="min-h-screen bg-background">
-      <Box as="header" className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-        <Flex
-          className="container mx-auto"
-          px="md"
-          py="md"
-          align="center"
-          justify="space-between"
-          gap="md"
-        >
-          <Flex align="center" gap="sm">
-            <Box className="p-2 rounded-xl bg-primary/10">
-              <Activity className="h-6 w-6 text-primary" />
-            </Box>
-            <Box>
-              <Title order={1} size="h4" fw="bold" className="font-serif text-foreground">
-                WeightWise
-              </Title>
-              <Text size="xs" className="text-muted-foreground">
-                Stay on top of your wellness journey
-              </Text>
-            </Box>
-            {demoMode && (
-              <Box
-                as="span"
-                px="xs"
-                py="xs"
-                radius="full"
-                className="text-xs bg-primary/10 text-primary"
-              >
-                Demo
-              </Box>
-            )}
-          </Flex>
-          <Button variant="ghost" onClick={onLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            {demoMode ? "Back" : "Logout"}
-          </Button>
-        </Flex>
-      </Box>
+    
 
       <Box as="main" className="container mx-auto max-w-6xl" px="md" py="xl">
         {demoMode && (
