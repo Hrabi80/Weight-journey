@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="font-sans">
-      <body className="antialiased">
+      <body className="antialiased min-h-screen pt-20">
         <SessionProvider>
           <Header />
           {children}
