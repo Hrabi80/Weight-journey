@@ -213,45 +213,7 @@ export function Dashboard({ profile, entries, onLogout, demoMode = false }: Dash
 
   return (
     <Box className="min-h-screen bg-background">
-      <Box as="header" className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-        <Flex
-          className="container mx-auto"
-          px="md"
-          py="md"
-          align="center"
-          justify="space-between"
-          gap="md"
-        >
-          <Flex align="center" gap="sm">
-            <Box className="p-2 rounded-xl bg-primary/10">
-              <Activity className="h-6 w-6 text-primary" />
-            </Box>
-            <Box>
-              <Title order={1} size="h4" fw="bold" className="font-serif text-foreground">
-                WeightWise
-              </Title>
-              <Text size="xs" className="text-muted-foreground">
-                Stay on top of your wellness journey
-              </Text>
-            </Box>
-            {demoMode && (
-              <Box
-                as="span"
-                px="xs"
-                py="xs"
-                radius="full"
-                className="text-xs bg-primary/10 text-primary"
-              >
-                Demo
-              </Box>
-            )}
-          </Flex>
-          <Button variant="ghost" onClick={onLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            {demoMode ? "Back" : "Logout"}
-          </Button>
-        </Flex>
-      </Box>
+    
 
       <Box as="main" className="container mx-auto max-w-6xl" px="md" py="xl">
         {demoMode && (

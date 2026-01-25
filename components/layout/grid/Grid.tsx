@@ -262,6 +262,14 @@ const COL_START_CLASSES: ClassNameVariants = {
   xl: "xl:col-start-[var(--tw-col-start-xl)]",
 };
 
+const COL_START_AUTO_CLASSES: ClassNameVariants = {
+  base: "col-start-auto",
+  sm: "sm:col-start-auto",
+  md: "md:col-start-auto",
+  lg: "lg:col-start-auto",
+  xl: "xl:col-start-auto",
+};
+
 const COL_ORDER_CLASSES: ClassNameVariants = {
   base: "order-[var(--tw-col-order)]",
   sm: "sm:order-[var(--tw-col-order-sm)]",
@@ -291,8 +299,8 @@ const GridColImpl = React.forwardRef<unknown, GridColProps<React.ElementType>>(f
     as,
     className,
     style,
-    span = 12,
-    offset = 0,
+    span = 1,
+    offset,
     order,
 
     // style props
@@ -330,17 +338,21 @@ const GridColImpl = React.forwardRef<unknown, GridColProps<React.ElementType>>(f
   // base defaults
   const baseSpan =
     typeof span === "object" && span !== null && !Array.isArray(span) && "base" in span
-      ? (span as Record<string, number>).base ?? 12
-      : (span as number | undefined) ?? 12;
+      ? (span as Record<string, number>).base ?? 1
+      : (span as number | undefined) ?? 1;
   styleVars[col_span_var("base")] = String(baseSpan);
   classes.push(COL_SPAN_CLASSES.base);
 
   const baseOffset =
     typeof offset === "object" && offset !== null && !Array.isArray(offset) && "base" in offset
-      ? (offset as Record<string, number>).base ?? 0
-      : (offset as number | undefined) ?? 0;
-  styleVars[col_start_var("base")] = String(baseOffset + 1);
-  classes.push(COL_START_CLASSES.base);
+      ? (offset as Record<string, number>).base
+      : (typeof offset === "number" ? offset : undefined);
+  if (typeof baseOffset === "number" && baseOffset > 0) {
+    styleVars[col_start_var("base")] = String(baseOffset + 1);
+    classes.push(COL_START_CLASSES.base);
+  } else if (baseOffset === 0) {
+    classes.push(COL_START_AUTO_CLASSES.base);
+  }
 
   const baseOrder =
     typeof order === "object" && order !== null && !Array.isArray(order) && "base" in order
@@ -359,8 +371,13 @@ const GridColImpl = React.forwardRef<unknown, GridColProps<React.ElementType>>(f
 
   for (const [bp, value] of to_entries(offset)) {
     if (bp === "base") continue;
-    styleVars[col_start_var(bp as keyof ClassNameVariants)] = String((value ?? baseOffset) + 1);
-    classes.push(COL_START_CLASSES[bp as keyof ClassNameVariants]);
+    if (value === undefined) continue;
+    if (value > 0) {
+      styleVars[col_start_var(bp as keyof ClassNameVariants)] = String(value + 1);
+      classes.push(COL_START_CLASSES[bp as keyof ClassNameVariants]);
+    } else if (value === 0) {
+      classes.push(COL_START_AUTO_CLASSES[bp as keyof ClassNameVariants]);
+    }
   }
 
   if (order !== undefined) {
