@@ -4,20 +4,16 @@ import { useRouter } from "next/navigation";
 import { Activity, ArrowRight, BarChart3, TrendingDown, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Box, Flex, Grid, Text, Title } from "@/components/layout";
-
+import { Box, Flex, Grid, Stack, Text, Title } from "@/components/layout";
+import "./styles.css"
 export default function Home() {
   const router = useRouter();
 
   return (
-    <Box className="min-h-screen flex flex-col bg-gradient-hero">
-      
-
-      <Box as="main" className="flex-1">
-        <Flex
-          direction="column"
+    <Box className="min-h-screen  max-w-screen bg-red-100" >
+        <Stack
           align="center"
-          className="container mx-auto px-4 py-12 sm:py-16"
+          className="container mx-auto px-4 py-12 sm:py-16 "
           gap="xl"
         >
           <Box className="max-w-4xl text-center animate-fade-in-up">
@@ -113,8 +109,7 @@ export default function Home() {
               </Box>
             </Grid.Col>
           </Grid>
-        </Flex>
-      </Box>
-    </Box>
+        </Stack>
+   </Box>
   );
 }

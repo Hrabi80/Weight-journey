@@ -143,18 +143,18 @@
     @apply bg-background text-foreground;
   }
 }
-
-@layer utilities {
-   .bg-gradient-hero {
-    position: relative;
-    background-image: linear-gradient(
+.bg-gradient-hero {
+   /* position: relative; */
+    background: linear-gradient(
       135deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--accent)) 40%,
-      hsl(var(--primary) / 0.95) 100%
+      var(--background) 0%,
+      var(--accent) 40%,
+      var(--primary) / 0.95 100%
     );
     overflow: hidden;
   }
+@layer utilities {
+   
 
   .bg-gradient-hero::before {
     content: "";
