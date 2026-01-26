@@ -7,7 +7,7 @@ import { Activity } from "lucide-react";
 import { QuestionnaireForm } from "@/components/questionnaire-form";
 import { SignupForm } from "@/components/signup-form";
 import { useSession } from "@/components/session-context";
-import { Box, Flex, Text, Title } from "@/components/layout";
+import { Container, Flex, Stack, Text, Title } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { FALLBACK_QUESTIONNAIRE } from "@/lib/session";
 import { QuestionnaireData } from "@/lib/types";
@@ -42,8 +42,8 @@ export default function QuestionnairePage() {
   };
 
   return (
-    <Flex className="min-h-screen" align="center" justify="center" px="md" py="xl">
-      <Box className="w-full max-w-4xl rounded-3xl bg-card shadow-xl border border-border/60 p-6 sm:p-10">
+    <Container axisX={'extraLarge'} axisY={"hero"} className="bg-gradient-hero" >
+    <Stack  align="center" justify="center" px="md" py="xl">
         <Flex align="center" justify="center" gap="xs" className="mb-6">
           <Activity className="h-8 w-8 text-primary" />
           <Title order={1} size="h3" fw="bold" className="font-serif text-foreground">
@@ -56,7 +56,7 @@ export default function QuestionnairePage() {
             : isLogin
               ? "Sign in to continue tracking your journey."
               : "Create an account to save your progress."}
-        </Text>
+        </Text>  
 
         {step === "questionnaire" ? (
           <>
@@ -98,7 +98,7 @@ export default function QuestionnairePage() {
             )}
           </>
         )}
-      </Box>
-    </Flex>
+    </Stack>
+    </Container>
   );
 }

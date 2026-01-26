@@ -63,7 +63,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="px-8 py-6 rounded-xl text-base shadow-soft cursor-pointer"
+                className="px-8 py-6 rounded-xl text-base shadow-soft cursor-pointer text-white"
               >
                 
                 Demo mode
