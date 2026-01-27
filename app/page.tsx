@@ -11,15 +11,14 @@ export default function Home() {
         <Stack
           align="center"
           gap="xl"
-          
         >
           <Box className="max-w-4xl text-center animate-fade-in-up">
-            <Box className="inline-flex items-center justify-center p-4 rounded-2xl bg-card shadow-card border border-border/60 mb-6">
+            <Box mb={"xl"}  className="inline-flex items-center justify-center p-4 rounded-2xl bg-card shadow-card border border-border/60" >
               <Activity className="h-10 w-10 text-primary" />
             </Box>
             <Title
               order={1}
-              size={{ base: "h2", sm: "h1" }}
+              size={{ base: "h5", sm: "h1" }}
               fw="bold"
               className="font-serif text-4xl sm:text-5xl md:text-6xl text-foreground leading-tight"
             >
@@ -63,7 +62,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="px-8 py-6 rounded-xl text-base shadow-soft cursor-pointer"
+                className="px-8 py-6 rounded-xl text-base shadow-soft cursor-pointer text-white"
               >
                 
                 Demo mode

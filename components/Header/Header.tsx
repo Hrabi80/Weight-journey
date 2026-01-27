@@ -3,12 +3,28 @@ import { Activity } from "lucide-react";
 
 import { Box, Flex, Text, Title } from "../layout";
 import { Button } from "../ui/button";
+import { MobileNav } from "./mobileNav";
+
+type NavLink = {
+  href: string;
+  label: string;
+  variant: "default" | "outline" | "secondary" | "ghost" | "destructive" | "link";
+};
+
+const navLinks: NavLink[] = [
+  { href: "/questionnaire?mode=login", label: "Sign in", variant: "ghost" },
+  { href: "/dashboard?demo=1", label: "Demo", variant: "outline" },
+];
 
 export function Header() {
   return (
-    <Box as="header" className="w-full header-shadow position-fix">
+    <Box
+      as="header"
+      className="fixed inset-x-0 top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"
+      shadow={"sm"}
+    >
       <Flex
-        className="container mx-auto py-4"
+        className="container mx-auto py-3"
         px="md"
         align="center"
         justify="space-between"
@@ -38,15 +54,19 @@ export function Header() {
         </Flex>
 
         <Flex align="center" gap="xs">
-          <Button variant="ghost" >
-            <Link href="/questionnaire?mode=login">Sign in</Link>
-          </Button>
+          <Flex align="center" gap="xs" className="hidden sm:flex">
+            {navLinks.map(({ href, label, variant }) => (
+              <Button key={href} variant={variant} >
+                <Link href={href}>{label}</Link>
+              </Button>
+            ))}
+          </Flex>
 
-          <Button variant="outline" >
-            <Link href="/dashboard?demo=1">Demo</Link>
-          </Button>
+          <MobileNav navLinks={navLinks} portalId="mobile-nav-portal" />
         </Flex>
       </Flex>
+
+      <div id="mobile-nav-portal" />
     </Box>
   );
 }

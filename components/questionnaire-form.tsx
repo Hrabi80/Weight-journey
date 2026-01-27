@@ -220,7 +220,7 @@ export function QuestionnaireForm({ onComplete }: QuestionnaireFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-xl border-0 bg-card">
+    <Card className="w-full max-w-md mx-auto shadow-xs " >
       <CardHeader className="text-center pb-2">
         <CardTitle className="text-2xl font-serif text-foreground">Let&apos;s Get Started</CardTitle>
         <CardDescription>Step {Math.min(step, 3)} of 3</CardDescription>
