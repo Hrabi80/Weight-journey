@@ -10,9 +10,7 @@ import { useForm } from "react-hook-form";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { calculateBMI } from "@/lib/bmi";
 import {
@@ -124,7 +122,6 @@ export function OnboardingStepperForm({
     getValues: getValues,
   });
   const currentStepConfig = stepper.currentStep;
-  const totalProgressSteps = 5;
   const bmiResult = stepper.bmiResult;
 
   const onSubmit = handleSubmit(async (values: OnboardingFormValues) => {

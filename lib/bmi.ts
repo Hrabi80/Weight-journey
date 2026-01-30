@@ -65,3 +65,18 @@ export function getWeightRanges(heightCm: number) {
     obeseLevel2Max: 40 * heightSquared,
   };
 }
+
+export const getUserWeighIndicatorColor = (category: string) => {
+    switch (category) {
+      case "underweight":
+        return "text-zone-underweight";
+      case "healthy":
+        return "text-primary"; // keep palette, swap greens for orange accent
+      case "overweight":
+        return "text-zone-overweight";
+      case "obese":
+        return "text-zone-obese";
+      default:
+        return "text-primary";
+    }
+  };
