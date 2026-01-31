@@ -37,9 +37,10 @@ interface ProgressSectionProps {
 }
 
 export function ProgressSection({ weights, height, sleep, calories, steps }: ProgressSectionProps) {
+
   return (
     <Grid columns={{ base: 1, lg: 12 }} gutter="lg" className="mb-8">
-      <Grid.Col span={{ base: 1, lg: 7 }}>
+      <Grid.Col span={{ base: 1, lg: 12 }}>
         <Card className="border-0 shadow-md bg-card h-full">
           <CardHeader>
             <CardTitle className="text-lg font-serif text-foreground">Weight progress</CardTitle>
@@ -57,7 +58,7 @@ export function ProgressSection({ weights, height, sleep, calories, steps }: Pro
         </Card>
       </Grid.Col>
 
-      <Grid.Col span={{ base: 1, lg: 5 }}>
+      <Grid.Col span={{ base: 1, lg: 12 }}>
         <WellnessMetricsChart sleep={sleep} calories={calories} steps={steps} />
       </Grid.Col>
     </Grid>

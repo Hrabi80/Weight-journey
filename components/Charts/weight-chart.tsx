@@ -11,39 +11,21 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  type TooltipProps,
 } from "recharts";
 import { format } from "date-fns";
 
 import { getBMIForWeight, getWeightRanges } from "@/lib/bmi";
 import type { WeightEntry } from "@/lib/types";
+import { WeightTooltip } from "./Tooltips/WeightTooltip";
 
 interface WeightChartProps {
   data: WeightEntry[];
   height: number;
 }
 
-type ChartTooltipPayload = {
-  displayDate: string;
-  weight: number;
-  bmi: number;
-};
 
-function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
-  if (active && payload && payload.length) {
-    const entry = payload[0]?.payload as ChartTooltipPayload | undefined;
-    if (!entry) return null;
 
-    return (
-      <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-        <p className="text-sm font-medium text-foreground">{entry.displayDate}</p>
-        <p className="text-lg font-bold text-primary">{entry.weight} kg</p>
-        <p className="text-xs text-muted-foreground">BMI: {entry.bmi.toFixed(1)}</p>
-      </div>
-    );
-  }
-  return null;
-}
+
 
 export function WeightChart({ data, height }: WeightChartProps) {
   const ranges = useMemo(() => getWeightRanges(height), [height]);
@@ -76,43 +58,43 @@ export function WeightChart({ data, height }: WeightChartProps) {
         <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
           <defs>
             <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
             </linearGradient>
           </defs>
 
           <ReferenceArea
             y2={ranges.underweightMax}
-            fill="hsl(var(--zone-underweight))"
+            fill="var(--zone-underweight)"
             fillOpacity={0.16}
           />
           <ReferenceArea
             y1={ranges.underweightMax}
             y2={ranges.healthyMax}
-            fill="hsl(var(--zone-healthy))"
+            fill="var(--zone-healthy)"
             fillOpacity={0.14}
           />
           <ReferenceArea
             y1={ranges.healthyMax}
             y2={ranges.overweightMax}
-            fill="hsl(var(--zone-overweight))"
+            fill="var(--zone-overweight)"
             fillOpacity={0.16}
           />
           <ReferenceArea
             y1={ranges.overweightMax}
             y2={ranges.obeseLevel1Max}
-            fill="hsl(var(--zone-obese))"
+            fill="var(--zone-obese)"
             fillOpacity={0.18}
           />
           <ReferenceArea
             y1={ranges.obeseLevel1Max}
             y2={ranges.obeseLevel2Max}
-            fill="hsl(var(--zone-obese-strong))"
+            fill="var(--zone-obese-strong)"
             fillOpacity={0.2}
           />
           <ReferenceArea
             y1={ranges.obeseLevel2Max}
-            fill="hsl(var(--zone-obese-strong))"
+            fill="var(--zone-obese-strong)"
             fillOpacity={0.28}
           />
 
@@ -120,32 +102,32 @@ export function WeightChart({ data, height }: WeightChartProps) {
             dataKey="displayDate"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
           />
           <YAxis
             domain={yDomain}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
             width={40}
           />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<WeightTooltip />} />
 
           <ReferenceLine
             y={ranges.underweightMax}
-            stroke="hsl(var(--zone-underweight))"
+            stroke="var(--zone-underweight)"
             strokeDasharray="4 4"
             strokeWidth={1}
           />
           <ReferenceLine
             y={ranges.healthyMax}
-            stroke="hsl(var(--zone-healthy))"
+            stroke="var(--zone-healthy)"
             strokeDasharray="4 4"
             strokeWidth={1}
           />
           <ReferenceLine
             y={ranges.overweightMax}
-            stroke="hsl(var(--zone-overweight))"
+            stroke="var(--zone-overweight)"
             strokeDasharray="4 4"
             strokeWidth={1}
           />

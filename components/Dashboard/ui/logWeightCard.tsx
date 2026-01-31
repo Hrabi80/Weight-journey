@@ -1,10 +1,23 @@
-import { Plus } from "lucide-react";
+"use client";
 
-import { AdditionalTrackers } from "@/components/additional-trackers";
-import { Grid, Flex, Text } from "@/components/layout";
+import { useState } from "react";
+import { Flame, Footprints, Loader2, Moon, Plus, Scale } from "lucide-react";
+
+import { Box, Flex, Text } from "@/components/layout";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { DashboardStatus } from "../use-dashboard-state";
 
 interface LogWeightCardProps {
@@ -20,6 +33,8 @@ interface LogWeightCardProps {
   on_log_steps: (value: number) => void;
 }
 
+type TrackerKey = "sleep" | "calories" | "steps";
+
 export function LogWeightCard(props: LogWeightCardProps) {
   const {
     newWeight,
@@ -32,58 +47,269 @@ export function LogWeightCard(props: LogWeightCardProps) {
     on_log_steps,
   } = props;
 
-  return (
-    <Grid columns={{ base: 1, md: 2 }} gutter="lg" mb={"xl"}>
-      <Grid.Col>
-        <Card className="border-0 shadow-md bg-card h-full">
-          <CardHeader>
-            <CardTitle className="text-lg font-serif text-foreground">Log today&apos;s weight</CardTitle>
-            <CardDescription>Keep daily momentum</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Flex direction={{ base: "column", sm: "row" }} gap="sm" align={{ sm: "center" }}>
-              <Input
-                type="number"
-                placeholder="Enter weight in kg"
-                value={newWeight}
-                onChange={(e) => on_change_weight(e.target.value)}
-                min={20}
-                max={500}
-                step="0.1"
-                className="flex-1"
-              />
-              <Button onClick={on_add_weight} className="sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Log weight
-              </Button>
-            </Flex>
+  const [open, setOpen] = useState(false);
+  const [sleepStart, setSleepStart] = useState("22:00");
+  const [sleepEnd, setSleepEnd] = useState("06:00");
+  const [calories, setCalories] = useState("");
+  const [steps, setSteps] = useState("");
+  const [localStatus, setLocalStatus] = useState<{ type: "success" | "error"; text: string } | null>(
+    null,
+  );
+  const [loading, setLoading] = useState<TrackerKey | null>(null);
 
+  const run = async (key: TrackerKey, action: () => Promise<void> | void) => {
+    try {
+      setLocalStatus(null);
+      setLoading(key);
+      await action();
+      setLocalStatus({ type: "success", text: "Saved to today's log." });
+    } catch (error) {
+      setLocalStatus({
+        type: "error",
+        text: error instanceof Error ? error.message : "Something went wrong.",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleLogWeight = () => {
+    setLocalStatus(null);
+    on_add_weight();
+  };
+
+  const handleLogSleep = () => run("sleep", () => on_log_sleep(sleepStart.trim(), sleepEnd.trim()));
+
+  const handleLogCalories = () =>
+    run("calories", () => {
+      const value = Number(calories);
+      if (!Number.isFinite(value) || value < 0) {
+        throw new Error("Enter a valid calorie number");
+      }
+      on_log_calories(value);
+      setCalories("");
+    });
+
+  const handleLogSteps = () =>
+    run("steps", () => {
+      const value = Number(steps);
+      if (!Number.isFinite(value) || value < 0) {
+        throw new Error("Enter a valid step count");
+      }
+      on_log_steps(value);
+      setSteps("");
+    });
+
+  return (
+    <Card className="border-0 shadow-md bg-card overflow-hidden mb-2">
+      <CardContent className="p-2 sm:py-2 sm:px-4">
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          align={{ md: "center" }}
+          justify={{ md: "space-between" }}
+          gap="md"
+        >
+          <Box >
+            <Text className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+              Daily log
+            </Text>
+            <Text as="h3" className="text-xl text-foreground">
+              Capture today in one tap
+            </Text>
+            <Text size="sm" className="text-muted-foreground max-w-2xl">
+              Weight, sleep, steps, and calories gathered in a single flow. Everything syncs to your
+              dashboard instantly.
+            </Text>
             {status && (
               <Text
                 size="sm"
-                className={`mt-2 ${status.type === "error" ? "text-destructive" : "text-muted-foreground"}`}
+                className={`text-sm ${status.type === "error" ? "text-destructive" : "text-muted-foreground"}`}
               >
                 {status.text}
               </Text>
             )}
+          </Box>
 
-            {demoMode && (
-              <Text size="xs" className="mt-2 text-muted-foreground">
-                Demo mode resets when you leave this page. Sign up to keep your progress.
-              </Text>
-            )}
-          </CardContent>
-        </Card>
-      </Grid.Col>
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogTrigger
+              render={
+                <Button size="lg" className="gap-2 shadow-md">
+                  <Plus className="h-4 w-4" />
+                  Log today
+                </Button>
+              }
+            />
 
-      <Grid.Col>
-        <AdditionalTrackers
-          onLogSleep={on_log_sleep}
-          onLogCalories={on_log_calories}
-          onLogSteps={on_log_steps}
-          disabled={demoMode}
-        />
-      </Grid.Col>
-    </Grid>
+            <AlertDialogContent size="default" className="sm:max-w-xl">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-foreground">
+                  Log today&apos;s wellness
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Quick capture for weight, sleep, steps, and calories. Changes apply to your charts
+                  right away.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="space-y-4">
+                <Box className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                  <Flex align="center" gap="sm" className="mb-3">
+                    <Box className="rounded-lg bg-primary/10 p-2">
+                      <Scale className="h-5 w-5 text-primary" />
+                    </Box>
+                    <Box>
+                      <Text className="font-semibold text-foreground">Weight</Text>
+                      <Text size="xs" className="text-muted-foreground">
+                        Update today&apos;s number (kg)
+                      </Text>
+                    </Box>
+                  </Flex>
+                  <Flex align={{ base: "stretch", sm: "center" }} gap="sm">
+                    <Input
+                      type="number"
+                      placeholder="Enter weight in kg"
+                      value={newWeight}
+                      onChange={(e) => on_change_weight(e.target.value)}
+                      min={20}
+                      max={500}
+                      step="0.1"
+                      className="flex-1"
+                    />
+                    <Button onClick={handleLogWeight} className="sm:w-auto">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
+                  </Flex>
+                  {status && (
+                    <Text
+                      size="xs"
+                      className={`mt-2 ${status.type === "error" ? "text-destructive" : "text-muted-foreground"}`}
+                    >
+                      {status.text}
+                    </Text>
+                  )}
+                </Box>
+
+                <Box className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                  <Flex align="center" gap="sm" className="mb-3">
+                    <Box className="rounded-lg bg-primary/10 p-2">
+                      <Moon className="h-5 w-5 text-primary" />
+                    </Box>
+                    <Box>
+                      <Text className="font-semibold text-foreground">Sleep</Text>
+                      <Text size="xs" className="text-muted-foreground">
+                        Record bedtime and wake-up
+                      </Text>
+                    </Box>
+                  </Flex>
+                  <Flex gap="sm" className="flex-col sm:flex-row">
+                    <Input
+                      type="time"
+                      value={sleepStart}
+                      onChange={(e) => setSleepStart(e.target.value)}
+                      disabled={ loading === "sleep"}
+                    />
+                    <Input
+                      type="time"
+                      value={sleepEnd}
+                      onChange={(e) => setSleepEnd(e.target.value)}
+                    disabled={ loading === "sleep"}
+                    />
+                    <Button onClick={handleLogSleep} 
+                 disabled={ loading === "sleep"}> 
+                      {loading === "sleep" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Log sleep"}
+                    </Button>
+                  </Flex>
+                </Box>
+
+                <Box className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                  <Flex align="center" gap="sm" className="mb-3">
+                    <Box className="rounded-lg bg-primary/10 p-2">
+                      <Footprints className="h-5 w-5 text-primary" />
+                    </Box>
+                    <Box>
+                      <Text className="font-semibold text-foreground">Steps</Text>
+                      <Text size="xs" className="text-muted-foreground">
+                        Daily movement count
+                      </Text>
+                    </Box>
+                  </Flex>
+                  <Flex gap="sm">
+                    <Input
+                      type="number"
+                      placeholder="e.g. 9000"
+                      value={steps}
+                      onChange={(e) => setSteps(e.target.value)}
+                      disabled={loading === "steps"}
+                    />
+                    <Button onClick={handleLogSteps} 
+                    disabled={loading === "steps"}
+                    >
+                      {loading === "steps" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Log steps"
+                      )}
+                    </Button>
+                  </Flex>
+                </Box>
+
+                <Box className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                  <Flex align="center" gap="sm" className="mb-3">
+                    <Box className="rounded-lg bg-primary/10 p-2">
+                      <Flame className="h-5 w-5 text-primary" />
+                    </Box>
+                    <Box>
+                      <Text className="font-semibold text-foreground">Calories</Text>
+                      <Text size="xs" className="text-muted-foreground">
+                        Daily intake snapshot
+                      </Text>
+                    </Box>
+                  </Flex>
+                  <Flex gap="sm">
+                    <Input
+                      type="number"
+                      placeholder="e.g. 2100"
+                      value={calories}
+                      onChange={(e) => setCalories(e.target.value)}
+                   disabled={ loading === "calories"}
+                    />
+                    <Button onClick={handleLogCalories}
+                    disabled={ loading === "calories"}> 
+                      {loading === "calories" ? ( 
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Log calories"
+                      )}
+                    </Button>
+                  </Flex>
+                </Box>
+
+                {localStatus && (
+                  <Text
+                    size="sm"
+                    className={`${localStatus.type === "error" ? "text-destructive" : "text-primary"} text-sm`}
+                  >
+                    {localStatus.text}
+                  </Text>
+                )}
+
+                {demoMode && (
+                  <Text size="xs" className="text-muted-foreground">
+                    Note: quick trackers are disabled in demo mode.
+                  </Text>
+                )}
+              </div>
+
+              <Separator className="my-1" />
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>Close</AlertDialogCancel>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </Flex>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,16 +1,14 @@
 "use client";
 
-
 import { Box } from "@/components/layout";
 
 import { Profile, WeightEntry } from "@/lib/types";
-import {  type DemoWellness } from "@/lib/demo-data";
+import { type DemoWellness } from "@/lib/demo-data";
 import { DemoModeAlert } from "./ui/DemoModeAlert";
 import { useDashboardState } from "./use-dashboard-state";
 import { KpiGrid } from "./ui/KPIGrid";
 import { ProgressSection } from "./ui/progressSection";
 import { LogWeightCard } from "./ui/logWeightCard";
-
 
 interface DashboardProps {
   profile: Profile;
@@ -28,27 +26,25 @@ interface DashboardProps {
  * - it does not contain business logic or long JSX blocks
  */
 export function Dashboard(props: DashboardProps) {
-    const { profile, entries, demoMode = false, demoWellness } = props;
+  const { profile, entries, demoMode = false, demoWellness } = props;
   const state = useDashboardState({
     profile,
     entries,
     demoMode: demoMode,
     demoWellness: demoWellness,
   });
- 
+
   return (
     <Box className="min-h-screen bg-background">
-    
-
       <Box as="main" className="container mx-auto max-w-6xl" px="md" py="xl">
-          <DemoModeAlert demoMode={demoMode}/>
-          <KpiGrid
-            latestWeight={state.latestWeight}
-            weightChange={state.weightChange}
-            lastDelta={state.lastDelta}
-            bmiResult={state.bmiResult}
-          />
- <LogWeightCard
+        <DemoModeAlert demoMode={demoMode} />
+        <KpiGrid
+          latestWeight={state.latestWeight}
+          weightChange={state.weightChange}
+          lastDelta={state.lastDelta}
+          bmiResult={state.bmiResult}
+        />
+        <LogWeightCard
           newWeight={state.newWeight}
           status={state.status}
           demoMode={demoMode}
@@ -58,15 +54,13 @@ export function Dashboard(props: DashboardProps) {
           on_log_calories={state.log_calories}
           on_log_steps={state.log_steps}
         />
-         <ProgressSection
+        <ProgressSection
           weights={state.weights}
           height={profile.height}
           sleep={state.sleepEntries}
           calories={state.caloriesEntries}
           steps={state.stepsEntries}
         />
-
-       
       </Box>
     </Box>
   );

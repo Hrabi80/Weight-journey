@@ -132,7 +132,6 @@ export function OnboardingStepperForm({
     const dataToSend: OnboardingResult = { ...values, bmiResult: finalBmi };
 
     // Logging here for now because there is no backend yet.
-    console.log("dataToSend", dataToSend);
 
     await onComplete?.(dataToSend);
 
