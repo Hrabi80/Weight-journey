@@ -3,17 +3,8 @@
 import { Flame, Footprints, Layers, Moon } from "lucide-react";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-export type MetricMode = "all" | "sleep" | "calories" | "steps";
-export type RangeMode = "7d" | "1m" | "2m" | "1y" | "all";
-export type XLabelSize = "sm" | "md" | "lg";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { RangeMode, WellnessMetric as MetricMode, XLabelSize } from "../types";
 
 interface WellnessChartControlsProps {
   metric: MetricMode;
@@ -33,7 +24,7 @@ export function WellnessChartControls({
   on_x_label_size_change,
 }: WellnessChartControlsProps) {
   return (
-    <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="mt-3 flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/40 px-3 py-3 shadow-sm md:flex-row md:items-center md:justify-between">
       <ToggleGroup
         type="single"
         value={metric}
@@ -65,7 +56,7 @@ export function WellnessChartControls({
 
       <div className="flex flex-wrap items-center gap-3">
         <Select value={range} onValueChange={(v) => on_range_change(v as RangeMode)}>
-          <SelectTrigger className="h-9 w-[170px]">
+          <SelectTrigger className="h-10 w-[190px] border-border/70">
             <SelectValue placeholder="Range" />
           </SelectTrigger>
           <SelectContent>

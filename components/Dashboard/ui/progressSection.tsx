@@ -3,9 +3,11 @@
 import dynamic from "next/dynamic";
 
 import type { CaloriesEntry, SleepEntry, StepsEntry } from "@/components/Charts/wellness-metrics-chart";
+import { WeightOverlayControls } from "@/components/Charts/controls/WeightOverlayControls";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Flex, Grid, Text } from "@/components/layout";
 import type { WeightEntry } from "@/lib/types";
+import { useWeightOverlay } from "../use-weight-overlay";
 
 const WeightChart = dynamic(() => import("@/components/Charts/weight-chart").then((m) => m.WeightChart), {
   ssr: false,
@@ -37,6 +39,7 @@ interface ProgressSectionProps {
 }
 
 export function ProgressSection({ weights, height, sleep, calories, steps }: ProgressSectionProps) {
+  const { overlayEnabled, overlayMetric, setOverlayMetric, toggleOverlay } = useWeightOverlay();
 
   return (
     <Grid columns={{ base: 1, lg: 12 }} gutter="lg" className="mb-8">
@@ -47,8 +50,22 @@ export function ProgressSection({ weights, height, sleep, calories, steps }: Pro
             <CardDescription>Trends with BMI-colored zones</CardDescription>
           </CardHeader>
           <CardContent>
+            <WeightOverlayControls
+              overlayEnabled={overlayEnabled}
+              metric={overlayMetric}
+              onToggleOverlay={toggleOverlay}
+              onMetricChange={setOverlayMetric}
+            />
             {weights.length > 0 ? (
-              <WeightChart data={weights} height={height} />
+              <WeightChart
+                data={weights}
+                height={height}
+                overlayEnabled={overlayEnabled}
+                overlayMetric={overlayMetric}
+                sleep={sleep}
+                calories={calories}
+                steps={steps}
+              />
             ) : (
               <Flex className="h-64 text-muted-foreground" align="center" justify="center">
                 <Text>No weight entries yet. Start by logging your weight.</Text>

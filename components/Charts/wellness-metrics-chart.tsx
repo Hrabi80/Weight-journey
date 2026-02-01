@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/card";
 
 import { WellnessTooltip } from "./Tooltips/WellnessTooltip";
-import { MetricMode, RangeMode, WellnessChartControls, XLabelSize } from "./controls/WellnessChartControls";
+import { WellnessChartControls } from "./controls/WellnessChartControls";
+import type { RangeMode, WellnessMetric as MetricMode, XLabelSize } from "./types";
 
 
 export type SleepEntry = { date: string; hours: number };
