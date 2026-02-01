@@ -1,0 +1,124 @@
+@config "../tailwind.config.ts";
+@import "tailwindcss";
+@import "tw-animate-css";
+/*@import "shadcn/tailwind.css"; */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-geist-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: 0.45rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: oklch(from var(--ring) l c h / 0.5);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@layer utilities {
+  .bg-gradient-hero {
+    background:
+      /* White edges + warm center band (primary-tinted) */
+      linear-gradient(
+        90deg,
+        oklch(1 0 0) 0%,
+        oklch(1 0 0) 22%,
+        oklch(0.987 0.021 95.3) 50%, /* warm center tint (amber-50-ish) */
+        oklch(1 0 0) 78%,
+        oklch(1 0 0) 100%
+      ),
+      /* Primary glow (top) */
+      radial-gradient(
+        1000px 600px at 50% 25%,
+        oklch(0.769 0.165 70.1 / 0.18), /* primary */
+        oklch(0.769 0.165 70.1 / 0) 60%
+      ),
+      /* Secondary warm glow (bottom) */
+      radial-gradient(
+        900px 560px at 50% 70%,
+        oklch(0.837 0.164 84.4 / 0.14), /* amber-400-ish, harmonious */
+        oklch(0.837 0.164 84.4 / 0) 62%
+      );
+  }
+
+  .text-gradient-primary {
+    background-image: linear-gradient(
+      120deg,
+      var(--primary) 0%,
+      var(--accent-foreground) 45%,
+      var(--primary) 90%
+    );
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-md, 0 12px 40px -18px oklch(from var(--ring) l c h / 0.35));
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-sm, 0 8px 30px -14px oklch(from var(--ring) l c h / 0.35));
+  }
+
+  .card-hover {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg, 0 20px 50px -24px oklch(from var(--ring) l c h / 0.38));
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fade-in-up 450ms ease forwards;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}

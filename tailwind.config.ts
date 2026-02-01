@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+const withAlpha = (variable: string) =>
+  `oklch(from var(${variable}) l c h / <alpha-value>)`;
+
 const config: Config = {
  
 
@@ -38,47 +41,47 @@ const config: Config = {
        * to values defined in `globals.css` (e.g. --primary, --foreground).
        */
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        border: withAlpha("--border"),
+        input: withAlpha("--input"),
+        ring: withAlpha("--ring"),
 
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: withAlpha("--background"),
+        foreground: withAlpha("--foreground"),
 
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: withAlpha("--primary"),
+          foreground: withAlpha("--primary-foreground"),
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: withAlpha("--secondary"),
+          foreground: withAlpha("--secondary-foreground"),
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: withAlpha("--destructive"),
+          foreground: withAlpha("--destructive-foreground"),
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: withAlpha("--muted"),
+          foreground: withAlpha("--muted-foreground"),
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: withAlpha("--accent"),
+          foreground: withAlpha("--accent-foreground"),
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: withAlpha("--popover"),
+          foreground: withAlpha("--popover-foreground"),
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: withAlpha("--card"),
+          foreground: withAlpha("--card-foreground"),
         },
         zone: {
-          underweight: "hsl(var(--zone-underweight))",
-          healthy: "hsl(var(--zone-healthy))",
-          overweight: "hsl(var(--zone-overweight))",
-          obese: "hsl(var(--zone-obese))",
-          "obese-strong": "hsl(var(--zone-obese-strong))",
+          underweight: withAlpha("--zone-underweight"),
+          healthy: withAlpha("--zone-healthy"),
+          overweight: withAlpha("--zone-overweight"),
+          obese: withAlpha("--zone-obese"),
+          "obese-strong": withAlpha("--zone-obese-strong"),
         },
       },
 

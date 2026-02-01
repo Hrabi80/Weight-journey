@@ -1,4 +1,5 @@
 import { calculateBMI } from "./bmi";
+import { demoWeight } from "./demo-data";
 import { Profile, QuestionnaireData, WeightEntry } from "./types";
 
 export const FALLBACK_QUESTIONNAIRE: QuestionnaireData = {
@@ -9,24 +10,11 @@ export const FALLBACK_QUESTIONNAIRE: QuestionnaireData = {
 };
 
 export const generateDemoData = (): { profile: Profile; entries: WeightEntry[] } => {
-  const today = new Date();
-  const entries: WeightEntry[] = [];
-  let weight = 95;
-
-  for (let i = 29; i >= 0; i -= 1) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    weight = weight - Math.random() * 0.3 + Math.random() * 0.15;
-    weight = Math.max(weight, 82);
-    entries.push({
-      id: `demo-${i}`,
-      weight: parseFloat(weight.toFixed(1)),
-      recordedAt: date.toISOString(),
-    });
-  }
+  const entries = demoWeight;
+  const initialWeight = entries[0]?.weight ?? 95;
 
   return {
-    profile: { height: 175, age: 30, initialWeight: 95 },
+    profile: { height: 175, age: 30, initialWeight },
     entries,
   };
 };

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { OnboardingStepperForm } from "@/components/onboarding/onboarding-stepper-form";
+import { OnboardingStepperForm } from "@/components/onboarding";
 import { useSession } from "@/components/session-context";
 import { QuestionnaireData } from "@/lib/types";
 import { Flex } from "@/components/layout";
