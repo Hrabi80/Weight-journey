@@ -72,13 +72,13 @@ function ToggleGroup({
         ? defaultValue
         : [defaultValue]
 
-  const handleValueChange = (groupValue: any[]) => {
+  const handleValueChange = (groupValue: string[]) => {
     if (!onValueChange) return
     if (resolvedMultiple) {
-      onValueChange(groupValue as string[])
+      ;(onValueChange as (value: string[]) => void)(groupValue)
       return
     }
-    onValueChange((groupValue?.[0] ?? "") as string)
+    ;(onValueChange as (value: string) => void)(groupValue?.[0] ?? "")
   }
 
   return (
