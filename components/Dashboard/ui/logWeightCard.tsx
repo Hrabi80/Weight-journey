@@ -26,11 +26,11 @@ interface LogWeightCardProps {
   demoMode: boolean;
 
   on_change_weight: (value: string) => void;
-  on_add_weight: () => void;
+  on_add_weight: () => Promise<void> | void;
 
-  on_log_sleep: (start: string, end: string) => void;
-  on_log_calories: (value: number) => void;
-  on_log_steps: (value: number) => void;
+  on_log_sleep: (start: string, end: string) => Promise<void> | void;
+  on_log_calories: (value: number) => Promise<void> | void;
+  on_log_steps: (value: number) => Promise<void> | void;
 }
 
 type TrackerKey = "sleep" | "calories" | "steps";
@@ -73,9 +73,9 @@ export function LogWeightCard(props: LogWeightCardProps) {
     }
   };
 
-  const handleLogWeight = () => {
+  const handleLogWeight = async () => {
     setLocalStatus(null);
-    on_add_weight();
+    await on_add_weight();
   };
 
   const handleLogSleep = () => run("sleep", () => on_log_sleep(sleepStart.trim(), sleepEnd.trim()));

@@ -16,6 +16,7 @@ interface DashboardProps {
   onLogout: () => void;
   demoMode?: boolean;
   demoWellness?: DemoWellness;
+  wellnessEntries?: import("@/src/domaine/entities/wellness-entry.entity").WellnessEntry[];
 }
 /**
  * Dashboard composition component.
@@ -32,6 +33,7 @@ export function Dashboard(props: DashboardProps) {
     entries,
     demoMode: demoMode,
     demoWellness: demoWellness,
+    wellnessEntries: props.wellnessEntries,
   });
 
   return (

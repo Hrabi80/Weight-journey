@@ -7,7 +7,7 @@ import {
   StepId,
 } from "./onboarding-schema";
 import { BMIResult, calculateBMI } from "@/lib/bmi";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 /* note for future me in case this hook is used for bigger project add callback for goTo, next , back  */
 type StepLike = {

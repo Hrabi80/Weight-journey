@@ -2,7 +2,9 @@ import { DemoWellness } from "@/lib/demo-data";
 import { Profile, WeightEntry } from "@/lib/types";
 import { CaloriesEntry, SleepEntry, StepsEntry } from "../Charts/wellness-metrics-chart";
 import { calculateBMI } from "@/lib/bmi";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSession } from "@/components/session-context";
+import type { WellnessEntry } from "@/src/domaine/entities/wellness-entry.entity";
 export type DashboardStatus = { type: "info" | "error"; text: string } | null;
 
 interface UseDashboardStateParams {
@@ -10,6 +12,7 @@ interface UseDashboardStateParams {
   entries: WeightEntry[];
   demoMode: boolean;
   demoWellness?: DemoWellness;
+  wellnessEntries?: WellnessEntry[];
 }
 interface UseDashboardStateReturn {
   weights: WeightEntry[];
@@ -29,49 +32,74 @@ interface UseDashboardStateReturn {
 
   set_new_weight: (value: string) => void;
 
-  add_weight: () => void;
-  log_sleep: (start: string, end: string) => void;
-  log_calories: (value: number) => void;
-  log_steps: (value: number) => void;
+  add_weight: () => Promise<void>;
+  log_sleep: (start: string, end: string) => Promise<void>;
+  log_calories: (value: number) => Promise<void>;
+  log_steps: (value: number) => Promise<void>;
 }
 export function useDashboardState(params: UseDashboardStateParams): UseDashboardStateReturn {
-    const { profile, entries, demoMode, demoWellness } = params;
-     const [weights, setWeights] = useState<WeightEntry[]>(entries);
-     const [newWeight, setNewWeight] = useState("");
-      const [status, setStatus] = useState<{ type: "info" | "error"; text: string } | null>(null);
+  const { profile, entries, demoMode, demoWellness, wellnessEntries } = params;
+  const { addWeight, logWellness } = useSession();
 
-      const [sleepEntries, setSleepEntries] = useState<SleepEntry[]>(
-        () => (demoMode ? (demoWellness?.sleep ?? []) : []),
-      );
-      
-      const [caloriesEntries, setCaloriesEntries] = useState<CaloriesEntry[]>(
-        () => (demoMode ? (demoWellness?.calories ?? []) : []),
-      );
-      
-      const [stepsEntries, setStepsEntries] = useState<StepsEntry[]>(
-        () => (demoMode ? (demoWellness?.steps ?? []) : []),
-      );
+  const [weights, setWeights] = useState<WeightEntry[]>(entries);
+  const [newWeight, setNewWeight] = useState("");
+  const [status, setStatus] = useState<{ type: "info" | "error"; text: string } | null>(null);
 
-      const latestWeight = useMemo(
-          () => weights[weights.length - 1]?.weight ?? profile.initialWeight,
-          [weights, profile.initialWeight],
-        );
-      
-        const firstWeight = useMemo(
-          () => weights[0]?.weight ?? profile.initialWeight,
-          [weights, profile.initialWeight],
-        );
-      
-        const previousWeight = useMemo(
-          () => (weights.length > 1 ? weights[weights.length - 2]?.weight : null),
-          [weights],
-        );
+  const mapWellness = (source?: WellnessEntry[]) => {
+    const sleep: SleepEntry[] = [];
+    const calories: CaloriesEntry[] = [];
+    const steps: StepsEntry[] = [];
+    (source ?? []).forEach((item) => {
+      if (item.metric === "sleep") sleep.push({ date: item.date, hours: item.value });
+      if (item.metric === "calories") calories.push({ date: item.date, kcal: item.value });
+      if (item.metric === "steps") steps.push({ date: item.date, steps: item.value });
+    });
+    return { sleep, calories, steps };
+  };
+
+  const initialWellness = demoMode ? demoWellness : mapWellness(wellnessEntries);
+
+  const [sleepEntries, setSleepEntries] = useState<SleepEntry[]>(initialWellness?.sleep ?? []);
+  const [caloriesEntries, setCaloriesEntries] = useState<CaloriesEntry[]>(initialWellness?.calories ?? []);
+  const [stepsEntries, setStepsEntries] = useState<StepsEntry[]>(initialWellness?.steps ?? []);
+
+  useEffect(() => {
+    setWeights(entries);
+  }, [entries]);
+
+  useEffect(() => {
+    if (demoMode) {
+      setSleepEntries(demoWellness?.sleep ?? []);
+      setCaloriesEntries(demoWellness?.calories ?? []);
+      setStepsEntries(demoWellness?.steps ?? []);
+    } else if (wellnessEntries) {
+      const mapped = mapWellness(wellnessEntries);
+      setSleepEntries(mapped.sleep);
+      setCaloriesEntries(mapped.calories);
+      setStepsEntries(mapped.steps);
+    }
+  }, [demoMode, demoWellness, wellnessEntries]);
+
+  const latestWeight = useMemo(
+    () => weights[weights.length - 1]?.weight ?? profile.initialWeight,
+    [weights, profile.initialWeight],
+  );
+
+  const firstWeight = useMemo(
+    () => weights[0]?.weight ?? profile.initialWeight,
+    [weights, profile.initialWeight],
+  );
+
+  const previousWeight = useMemo(
+    () => (weights.length > 1 ? weights[weights.length - 2]?.weight : null),
+    [weights],
+  );
 
     const weightChange = latestWeight - firstWeight;
   const lastDelta = previousWeight ? latestWeight - previousWeight : null;
   const bmiResult = calculateBMI(latestWeight, profile.height);
   const todayKey = () => new Date().toISOString().split("T")[0];
-        const add_weight = () => {
+  const add_weight = async () => {
     const parsed = parseFloat(newWeight);
     if (!Number.isFinite(parsed) || parsed < 20 || parsed > 500) {
       setStatus({ type: "error", text: "Enter a weight between 20 and 500 kg." });
@@ -79,9 +107,7 @@ export function useDashboardState(params: UseDashboardStateParams): UseDashboard
     }
 
     const today = todayKey();
-    const existingIndex = weights.findIndex(
-      (entry) => entry.recordedAt.split("T")[0] === today,
-    );
+    const existingIndex = weights.findIndex((entry) => entry.date === today);
 
     if (existingIndex >= 0) {
       const updated = [...weights];
@@ -93,16 +119,25 @@ export function useDashboardState(params: UseDashboardStateParams): UseDashboard
         {
           id: `local-${Date.now()}`,
           weight: parseFloat(parsed.toFixed(1)),
-          recordedAt: new Date().toISOString(),
+          date: today,
         },
       ]);
     }
 
-    setNewWeight("");
-    setStatus({ type: "info", text: `${parsed.toFixed(1)} kg logged for today.` });
+    try {
+      await addWeight(parsed);
+      setStatus({ type: "info", text: `${parsed.toFixed(1)} kg logged for today.` });
+    } catch (error) {
+      setStatus({
+        type: "error",
+        text: error instanceof Error ? error.message : "Could not save weight.",
+      });
+    } finally {
+      setNewWeight("");
+    }
   };
 
-  const log_sleep = (start: string, end: string) => {
+  const log_sleep = async (start: string, end: string) => {
     if (!start || !end) throw new Error("Please provide both start and end times.");
     const [sH, sM] = start.split(":").map(Number);
     const [eH, eM] = end.split(":").map(Number);
@@ -122,8 +157,9 @@ export function useDashboardState(params: UseDashboardStateParams): UseDashboard
       }
       return [...prev, { date: today, hours: diffHours }];
     });
+    await logWellness("sleep", diffHours, today);
   };
-  const log_calories = (value: number): void => {
+  const log_calories = async (value: number): Promise<void> => {
     const today = todayKey();
 
     setCaloriesEntries((prev) => {
@@ -135,9 +171,10 @@ export function useDashboardState(params: UseDashboardStateParams): UseDashboard
       }
       return [...prev, { date: today, kcal: value }];
     });
+    await logWellness("calories", value, today);
   };
 
-  const log_steps = (value: number): void => {
+  const log_steps = async (value: number): Promise<void> => {
     const today = todayKey();
 
     setStepsEntries((prev) => {
@@ -149,6 +186,7 @@ export function useDashboardState(params: UseDashboardStateParams): UseDashboard
       }
       return [...prev, { date: today, steps: value }];
     });
+    await logWellness("steps", value, today);
   };
   return {
     weights,
@@ -173,5 +211,4 @@ export function useDashboardState(params: UseDashboardStateParams): UseDashboard
     log_calories,
     log_steps,
   };
-      
 }

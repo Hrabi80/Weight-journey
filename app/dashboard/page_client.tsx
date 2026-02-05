@@ -22,7 +22,7 @@ interface PageClientProps {
  */
 export default function PageClient({ demoMode }: PageClientProps) {
   const router = useRouter();
-  const { profile, entries, isDemo, startDemo, reset } = useSession();
+  const { profile, entries, wellnessEntries, isDemo, startDemo, reset } = useSession();
 
   // Prevent double-invocation issues in dev StrictMode
   const demoStartedRef = useRef(false);
@@ -50,11 +50,12 @@ export default function PageClient({ demoMode }: PageClientProps) {
 
   return (
     <Dashboard
-      key={demoMode ? "demo" : profile!.initialWeight}
+      key={demoMode ? "demo" : profile!.username}
       profile={profile!}
       entries={entries}
       demoMode={demoMode}
       demoWellness={demoMode ? demoWellness : undefined}
+      wellnessEntries={demoMode ? undefined : wellnessEntries}
       onLogout={() => {
         reset();
         router.replace("/");

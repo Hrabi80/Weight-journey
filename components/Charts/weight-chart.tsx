@@ -107,8 +107,8 @@ export function WeightChart({
 
   const chartData = useMemo(() => {
     return data.map((entry) => {
-      const date = new Date(entry.recordedAt);
-      const dateKey = entry.recordedAt.split("T")[0];
+      const date = new Date(entry.date);
+      const dateKey = entry.date;
       const overlay = overlayMap.get(dateKey);
       return {
         ...entry,
@@ -118,7 +118,7 @@ export function WeightChart({
         calories: overlay?.calories,
         steps: overlay?.steps,
         stepsK: overlay?.stepsK,
-        isoDate: entry.recordedAt,
+        isoDate: entry.date,
       };
     });
   }, [data, height, overlayMap]);

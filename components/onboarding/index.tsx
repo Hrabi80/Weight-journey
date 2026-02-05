@@ -47,6 +47,7 @@ export function OnboardingStepperForm({
   // Router is only used for optional navigation after submit
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // RHF + zod: strings come in, numbers come out.
   const form = useForm<OnboardingFormInputs, undefined, OnboardingFormValues>({
@@ -58,6 +59,7 @@ export function OnboardingStepperForm({
       OnboardingFormValues
     >,
     defaultValues: {
+      username: "",
       age: "",
       weight: "",
       height: "",
@@ -109,7 +111,7 @@ export function OnboardingStepperForm({
         title: "Create your account",
         description: "Save your progress to keep tracking.",
         Icon: User,
-        fields: ["email", "password"],
+        fields: ["username", "email", "password"],
         progressIndex: 5,
       },
     ],
@@ -127,13 +129,19 @@ export function OnboardingStepperForm({
   const onSubmit = handleSubmit(async (values: OnboardingFormValues) => {
     // Build the final payload, log it for now, and kick off a soft redirect.
     setSubmitting(true);
+    setSubmitError(null);
     const finalBmi =
       stepper.bmiResult ?? calculateBMI(values.weight, values.height);
     const dataToSend: OnboardingResult = { ...values, bmiResult: finalBmi };
 
-    // Logging here for now because there is no backend yet.
-
-    await onComplete?.(dataToSend);
+    try {
+      await onComplete?.(dataToSend);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Signup failed. Please try again.";
+      setSubmitError(message);
+      setSubmitting(false);
+      return;
+    }
 
     // Optional navigation to the dashboard after a short delay.
     setTimeout(() => router.push("/dashboard"), 2000);
@@ -202,7 +210,12 @@ export function OnboardingStepperForm({
         </CardHeader>
       </CardHeader>
       <CardContent className="pt-4">
-        <form onSubmit={onSubmit}>{renderStepContent()}</form>
+        <form onSubmit={onSubmit}>
+          {renderStepContent()}
+          {submitError && (
+            <p className="mt-4 text-sm text-destructive text-center">{submitError}</p>
+          )}
+        </form>
       </CardContent>
     </Card>
   );

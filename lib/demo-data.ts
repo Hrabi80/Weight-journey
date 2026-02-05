@@ -11,7 +11,7 @@ export type DemoWellness = {
   steps: DemoStepsEntry[];
 };
 
-type DemoWeightRaw = { id?: string; weight: number; recordedAt: string };
+type DemoWeightRaw = { id?: string; weight: number; date: string };
 
 /**
  * note:
@@ -23,5 +23,6 @@ export const demoWellness: DemoWellness = demo_json.wellness;
 export const demoWeight: WeightEntry[] = (demo_json.weight as DemoWeightRaw[]).map((row, idx) => ({
   id: row.id ?? `demo-weight-${idx}`,
   weight: row.weight,
-  recordedAt: row.recordedAt,
+  date: row.date,
+  username: "demo-user",
 }));

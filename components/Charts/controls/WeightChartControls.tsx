@@ -32,7 +32,7 @@ export function WeightChartControls({
             <SelectValue placeholder="Range" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="7d">This week</SelectItem>
+            <SelectItem value="7d" className="cursor-pointer">This week</SelectItem>
             <SelectItem value="1m">Last month</SelectItem>
             <SelectItem value="2m">Last 2 months</SelectItem>
             <SelectItem value="1y">Last year</SelectItem>
