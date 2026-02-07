@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SupabaseProfileRepository } from "@/lib/infra/supabase/profile-repo";
 import { SupabaseWeightRepository } from "@/lib/infra/supabase/weight-repo";
 import { SupabaseWellnessRepository } from "@/lib/infra/supabase/wellness-repo";
-import { GetDashboardDataUseCase } from "@/src/domaine/usecases/get-dashboard-data";
+import { GetDashboardDataUseCase } from "@/src/domaine/usecasesOld/get-dashboard-data";
 
 export async function GET() {
   const supabase = createSupabaseServerClient();

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
-import type { WeightRepository } from "@/src/domaine/repositories/weight-repository";
+import type { WeightRepository } from "@/src/domaine/repositories/weight.repository";
 import type { WeightEntry } from "@/src/domaine/entities/weight-entry.entity";
 
 export class SupabaseWeightRepository implements WeightRepository {

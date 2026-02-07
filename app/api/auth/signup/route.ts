@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SupabaseProfileRepository } from "@/lib/infra/supabase/profile-repo";
 import { SupabaseWeightRepository } from "@/lib/infra/supabase/weight-repo";
-import { CreateUserProfileUseCase } from "@/src/domaine/usecases/create-user-profile";
+import { CreateUserProfileUseCase } from "@/src/domaine/usecasesOld/create-user-profile";
 
 export async function POST(req: NextRequest) {
   const supabase = createSupabaseServerClient();

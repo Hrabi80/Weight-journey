@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
-import type { ProfileRepository } from "@/src/domaine/repositories/profile-repository";
+import type { ProfileRepository } from "@/src/domaine/repositories/profile.repository";
 import type { Profile } from "@/src/domaine/entities/profile.entity";
 
 export class SupabaseProfileRepository implements ProfileRepository {

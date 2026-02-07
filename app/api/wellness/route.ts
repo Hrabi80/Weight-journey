@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SupabaseWellnessRepository } from "@/lib/infra/supabase/wellness-repo";
-import { LogWellnessEntryUseCase } from "@/src/domaine/usecases/log-wellness-entry";
+import { LogWellnessEntryUseCase } from "@/src/domaine/usecasesOld/log-wellness-entry";
 import type { WellnessMetric } from "@/src/domaine/entities/wellness-entry.entity";
 import { SupabaseProfileRepository } from "@/lib/infra/supabase/profile-repo";
 

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
-import type { WellnessRepository } from "@/src/domaine/repositories/wellness-repository";
+import type { WellnessRepository } from "@/src/domaine/repositories/wellness.repository";
 import type { WellnessEntry, WellnessMetric } from "@/src/domaine/entities/wellness-entry.entity";
 
 export class SupabaseWellnessRepository implements WellnessRepository {
