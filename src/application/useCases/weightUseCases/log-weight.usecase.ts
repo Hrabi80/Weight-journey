@@ -3,8 +3,6 @@ import type { WeightRepository } from "@/src/application/ports/weight.repository
 import { WeightEntry } from "@/src/domaine/entities/weight-entry.entity";
 import { LogWeightEntryInput, logWeightSchema } from "@/src/application/validations/weight.schema";
 
-
-
 /**
  * Business rule:
  * - Only ONE weight entry per user per day.
