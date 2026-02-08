@@ -16,23 +16,23 @@ export class UpsertWellnessEntryUseCase {
   }
 
   /**
-   * @param input - username, metric, value, date
+   * @param input - email, metric, value, date
    * @returns Created or updated WellnessEntry.
    * @throws {z.ZodError} If validation fails.
    */
   public async execute(input: UpsertWellnessEntryInput): Promise<WellnessEntry> {
     const validated = logWellnessSchema.parse(input);
-    const normalizedUsername = validated.username.toLowerCase();
+    const normalizedEmail = validated.email.toLowerCase();
 
-    const existing = await this.wellnessRepo.find_by_username_metric_date(
-      normalizedUsername,
+    const existing = await this.wellnessRepo.find_by_email_metric_date(
+      normalizedEmail,
       validated.metric,
       validated.date
     );
 
     if (!existing) {
       return this.wellnessRepo.create({
-        username: normalizedUsername,
+        email: normalizedEmail,
         metric: validated.metric,
         value: validated.value,
         date: validated.date,

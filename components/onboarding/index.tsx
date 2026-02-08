@@ -59,7 +59,6 @@ export function OnboardingStepperForm({
       OnboardingFormValues
     >,
     defaultValues: {
-      username: "",
       age: "",
       weight: "",
       height: "",
@@ -111,7 +110,7 @@ export function OnboardingStepperForm({
         title: "Create your account",
         description: "Save your progress to keep tracking.",
         Icon: User,
-        fields: ["username", "email", "password"],
+        fields: ["email", "password"],
         progressIndex: 5,
       },
     ],

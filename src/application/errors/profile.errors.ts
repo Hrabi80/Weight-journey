@@ -1,13 +1,13 @@
 /**
- * Error thrown when a user tries to pick a username that already exists.
+ * Error thrown when a user tries to pick a email that already exists.
  */
-export class UsernameAlreadyExistsError extends Error {
-  public readonly username: string;
+export class EmailAlreadyExistsError extends Error {
+  public readonly email: string;
 
-  public constructor(username: string) {
-    super(`Username already exists: ${username}`);
-    this.name = "UsernameAlreadyExistsError";
-    this.username = username;
+  public constructor(email: string) {
+    super(`Email already exists: ${email}`);
+    this.name = "EmailAlreadyExistsError";
+    this.email = email;
   }
 }
 

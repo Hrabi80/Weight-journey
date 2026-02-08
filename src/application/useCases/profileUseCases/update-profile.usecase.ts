@@ -1,6 +1,6 @@
 import { ProfileRepository, UpdateProfilePatch } from "@/src/application/ports/profile.repository";
 import { Profile } from "@/src/domaine/entities/profile.entity";
-import { EmptyProfileUpdateError, ProfileNotFoundForAuthUserError, UsernameAlreadyExistsError } from "@/src/application/errors/profile.errors";
+import { EmptyProfileUpdateError, ProfileNotFoundForAuthUserError, EmailAlreadyExistsError } from "@/src/application/errors/profile.errors";
 import { UpdateProfileInput, updateProfileSchema } from "@/src/application/validations/profile.schema";
 
 
@@ -13,7 +13,7 @@ import { UpdateProfileInput, updateProfileSchema } from "@/src/application/valid
  * - validate input
  * - ensure the profile exists for the auth user
  * - enforce business rules on changes:
- *   - if username changes, it must remain unique
+ *   - if email changes, it must remain unique
  * - apply the patch via the repository
  */
 export class UpdateProfileUseCase {
@@ -29,12 +29,12 @@ export class UpdateProfileUseCase {
    * @throws {z.ZodError} If validation fails.
    * @throws {EmptyProfileUpdateError} If no updatable fields are provided.
    * @throws {ProfileNotFoundForAuthUserError} If profile does not exist.
-   * @throws {UsernameAlreadyExistsError} If new username is taken.
+   * @throws {EmailAlreadyExistsError} If new email is taken.
    */
   public async execute(input: UpdateProfileInput): Promise<Profile> {
     const validated = updateProfileSchema.parse(input);
 
-    // 1) Load current profile (we need its id + current username).
+    // 1) Load current profile (we need its id + current email).
     const currentProfile = await this.profileRepo.find_by_auth_user_id(validated.authUserId);
     if (!currentProfile) {
       throw new ProfileNotFoundForAuthUserError(validated.authUserId);
@@ -55,21 +55,21 @@ export class UpdateProfileUseCase {
       patch.initial_weight = validated.initialWeight;
     }
 
-    if (typeof validated.username === "string") {
-      // Normalize username so uniqueness behaves consistently.
-      const normalizedUsername = validated.username.toLowerCase();
+    if (typeof validated.email === "string") {
+      // Normalize email so uniqueness behaves consistently.
+      const normalizedEmail = validated.email.toLowerCase();
 
-      // Only check uniqueness if the username actually changes.
-      if (normalizedUsername !== currentProfile.username) {
-        const existing = await this.profileRepo.find_by_username(normalizedUsername);
+      // Only check uniqueness if the email actually changes.
+      if (normalizedEmail !== currentProfile.email) {
+        const existing = await this.profileRepo.find_by_email(normalizedEmail);
 
         // If another profile has it, reject.
         if (existing && existing.id !== currentProfile.id) {
-          throw new UsernameAlreadyExistsError(normalizedUsername);
+          throw new EmailAlreadyExistsError(normalizedEmail);
         }
       }
 
-      patch.username = normalizedUsername;
+      patch.email = normalizedEmail;
     }
 
     // 3) Ensure there is something to update.

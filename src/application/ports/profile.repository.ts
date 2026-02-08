@@ -9,20 +9,20 @@ export type CreateProfileInput = Omit<Profile, "id" | "created_at">;
  * Fields allowed to be updated.
  */
 export type UpdateProfilePatch = Partial<
-  Pick<Profile, "username" | "age" | "height" | "initial_weight">
+  Pick<Profile, "email" | "age" | "height" | "initial_weight">
 >;
 export interface ProfileRepository {
     /**
-   * Finds a profile by its unique username.
+   * Finds a profile by its unique email.
    *
    * Use cases need this to:
-   * - enforce username uniqueness on signup
-   * - load profile data by username
+   * - enforce email uniqueness on signup
+   * - load profile data by email
    *
-   * @param username - Unique username chosen by the user.
+   * @param email - Unique email chosen by the user.
    * @returns The profile if found, otherwise null.
    */
-    find_by_username(username: string): Promise<Profile | null>;
+    find_by_email(email: string): Promise<Profile | null>;
 
     /**
    * Finds a profile by the auth provider user id.

@@ -21,15 +21,15 @@ export class GetWeightDashboardSeriesUseCase {
   }
 
   /**
-   * @param input - Contains username.
+   * @param input - Contains email.
    * @returns Series points for the weight chart.
    * @throws {z.ZodError} If validation fails.
    */
   public async execute(input: weightSerieInput): Promise<WeightDashboardSeries> {
     const validated = getSeriesSchema.parse(input);
-    const normalizedUsername = validated.username.toLowerCase();
+    const normalizedEmail = validated.email.toLowerCase();
 
-    const entries = await this.weightRepo.list_by_username(normalizedUsername);
+    const entries = await this.weightRepo.list_by_email(normalizedEmail);
     return this.to_points(entries);
   }
 

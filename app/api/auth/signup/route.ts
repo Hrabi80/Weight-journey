@@ -11,12 +11,11 @@ export async function POST(req: NextRequest) {
 
   const email = body?.email as string | undefined;
   const password = body?.password as string | undefined;
-  const username = body?.username as string | undefined;
   const age = Number(body?.age);
   const height = Number(body?.height);
   const weight = Number(body?.weight);
 
-  if (!email || !password || !username || Number.isNaN(age) || Number.isNaN(height) || Number.isNaN(weight)) {
+  if (!email || !password || Number.isNaN(age) || Number.isNaN(height) || Number.isNaN(weight)) {
     return NextResponse.json({ error: "Missing or invalid fields." }, { status: 400 });
   }
 
@@ -36,7 +35,7 @@ export async function POST(req: NextRequest) {
   try {
     const { profile, initialEntry } = await createProfile.execute({
       authUserId: signup.user.id,
-      username,
+      email,
       age,
       height,
       initialWeight: weight,
@@ -58,9 +57,9 @@ export async function POST(req: NextRequest) {
       await admin.auth.admin.deleteUser(signup.user.id).catch(() => undefined);
     }
     const message = error instanceof Error ? error.message : "Could not create profile.";
-    const status = message.toLowerCase().includes("username") ? 409 : 500;
+    const status = message.toLowerCase().includes("email") ? 409 : 500;
     const friendly =
-      status === 409 ? "Username already taken. Please choose another." : message;
+      status === 409 ? "Email already taken. Please choose another." : message;
     return NextResponse.json({ error: friendly }, { status });
   }
 }

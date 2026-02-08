@@ -16,7 +16,7 @@ export interface WeightRepository {
   /**
    * Creates a weight entry for a user.
    *
-   * @param input - Weight entry fields (username, weight, date).
+   * @param input - Weight entry fields (email, weight, date).
    * @returns The created entry including its id.
    */
   create(input: CreateWeightEntryInput): Promise<WeightEntry>;
@@ -24,20 +24,20 @@ export interface WeightRepository {
   /**
    * Lists all weight entries for a given user.
    *
-   * @param username - Owner username.
+   * @param email - Owner email.
    * @returns A list of weight entries (often sorted by date desc).
    */
-  list_by_username(username: string): Promise<WeightEntry[]>;
+  list_by_email(email: string): Promise<WeightEntry[]>;
 
   /**
-   * Finds a weight entry by username + date.
+   * Finds a weight entry by email + date.
    * This supports the "one weight per day" rule.
    *
-   * @param username - Owner username.
+   * @param email - Owner email.
    * @param date - YYYY-MM-DD.
    * @returns The entry if exists, otherwise null.
    */
-  find_by_username_and_date(username: string, date: string): Promise<WeightEntry | null>;
+  find_by_email_and_date(email: string, date: string): Promise<WeightEntry | null>;
 
   /**
    * Updates an existing weight entry by id.

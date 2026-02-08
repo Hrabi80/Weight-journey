@@ -6,12 +6,7 @@ import { z } from "zod";
  * We validate here (Application layer) rather than in Domain to keep Domain pure.
  */
 export const createProfileSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(3, "Username must be at least 3 characters.")
-    .max(20, "Username must be at most 20 characters.")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can contain only letters, numbers, and underscores."),
+  email: z.string().trim().toLowerCase().email("Enter a valid email address."),
   authUserId: z.string().min(1, "auth_user_id is required."),
   age: z.number().int().min(10,"This application do not support user with age under 10").max(120,"age must be realistic"),
   height: z.number().positive(),
@@ -31,13 +26,7 @@ export type GetProfileByAuthUserInput = z.infer<typeof getProfileSchema>;
  */
 export const updateProfileSchema = z.object({
   authUserId: z.string().min(1, "auth_user_id is required."),
-  username: z
-    .string()
-    .trim()
-    .min(3, "Username must be at least 3 characters.")
-    .max(20, "Username must be at most 20 characters.")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can contain only letters, numbers, and underscores.")
-    .optional(),
+  email: z.string().trim().toLowerCase().email("Enter a valid email address.").optional(),
   age: z.number().int().min(10).max(120).optional(),
   height: z.number().positive().optional(),
   initialWeight: z.number().positive().optional(),

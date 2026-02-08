@@ -1,6 +1,6 @@
 export type Profile = {
   id: string;
-  username: string;
+  email: string;
   auth_user_id: string;
   age: number;
   height: number;

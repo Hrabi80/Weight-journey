@@ -17,12 +17,12 @@ export class GetWellnessDashboardSeriesUseCase {
 
   public async execute(input: wellnessSerieInput): Promise<WellnessDashboardSeries> {
     const validated = getSeriesSchema.parse(input);
-    const normalizedUsername = validated.username.toLowerCase();
+    const normalizedEmail = validated.email.toLowerCase();
 
     const [sleep, calories, steps] = await Promise.all([
-      this.wellness_repo.list_by_username_and_metric(normalizedUsername, "sleep"),
-      this.wellness_repo.list_by_username_and_metric(normalizedUsername, "calories"),
-      this.wellness_repo.list_by_username_and_metric(normalizedUsername, "steps"),
+      this.wellness_repo.list_by_email_and_metric(normalizedEmail, "sleep"),
+      this.wellness_repo.list_by_email_and_metric(normalizedEmail, "calories"),
+      this.wellness_repo.list_by_email_and_metric(normalizedEmail, "steps"),
     ]);
 
     return {

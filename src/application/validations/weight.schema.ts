@@ -3,7 +3,7 @@ import { simpleDateSchema } from "./date.schema";
 import { createProfileSchema } from "./profile.schema";
 
 export const logWeightSchema = z.object({
-  username: createProfileSchema.shape.username,
+  email: createProfileSchema.shape.email,
   weight: z.number().positive("Weight must be positive."),
   date: simpleDateSchema,
 });
@@ -11,7 +11,7 @@ export const logWeightSchema = z.object({
 export type LogWeightEntryInput = z.infer<typeof logWeightSchema>;
 
 export const listWeightSchema =  z.object({
-  username: createProfileSchema.shape.username,
+  email: createProfileSchema.shape.email,
 });
 export type ListWeightEntriesInput = z.infer<typeof listWeightSchema>;
 
@@ -27,7 +27,7 @@ export type WeightDashboardSeries = WeightSeriesPoint[];
 
 export const getSeriesSchema = z.object({
   // Reuse the exact same validation rules as profile creation.
-  username: createProfileSchema.shape.username,
+  email: createProfileSchema.shape.email,
 });
 
 export type weightSerieInput =  z.infer<typeof getSeriesSchema>

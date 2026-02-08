@@ -50,7 +50,7 @@ export default function PageClient({ demoMode }: PageClientProps) {
 
   return (
     <Dashboard
-      key={demoMode ? "demo" : profile!.username}
+      key={demoMode ? "demo" : profile!.email}
       profile={profile!}
       entries={entries}
       demoMode={demoMode}

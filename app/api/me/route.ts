@@ -27,7 +27,7 @@ export async function GET() {
   const wellnessRepo = new SupabaseWellnessRepository(supabase);
 
   const usecase = new GetDashboardDataUseCase(profileRepo, weightRepo, wellnessRepo);
-  const result = await usecase.execute(profile.username);
+  const result = await usecase.execute(profile.email);
 
   return NextResponse.json(
     {

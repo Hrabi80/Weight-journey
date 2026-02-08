@@ -16,7 +16,7 @@ export class ListWellnessEntriesForMetricUseCase {
 
   public async execute(input: ListWellnessEntriesForMetricInput): Promise<WellnessEntry[]> {
     const validated = listWellnessSchema.parse(input);
-    const normalizedUsername = validated.username.toLowerCase();
-    return this.wellnessRepo.list_by_username_and_metric(normalizedUsername, validated.metric);
+    const normalizedEmail = validated.email.toLowerCase();
+    return this.wellnessRepo.list_by_email_and_metric(normalizedEmail, validated.metric);
   }
 }

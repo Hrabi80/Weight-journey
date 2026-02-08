@@ -14,7 +14,6 @@ export default function PageClient() {
 
   const handleComplete = (data: OnboardingResult) => {
     const questionnaireData: QuestionnaireData = {
-      username: data.username,
       age: data.age,
       weight: data.weight,
       height: data.height,

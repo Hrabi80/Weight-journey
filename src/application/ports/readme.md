@@ -20,7 +20,7 @@ Each file defines an interface used by use cases:
 
 - `ProfileRepository`
   - create a profile
-  - find a profile by username
+  - find a profile by email
   - find a profile by auth user id
 
 - `WeightRepository`

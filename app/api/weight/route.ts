@@ -18,7 +18,7 @@ export async function GET() {
   if (!profile) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
   const repo = new SupabaseWeightRepository(supabase);
-  const entries = await repo.list(profile.username);
+  const entries = await repo.list(profile.email);
   return NextResponse.json({ entries }, { status: 200 });
 }
 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
   const repo = new SupabaseWeightRepository(supabase);
   const usecase = new AddWeightEntryUseCase(repo);
-  const entry = await usecase.execute({ username: profile.username, weight, date });
+  const entry = await usecase.execute({ email: profile.email, weight, date });
 
   return NextResponse.json({ entry }, { status: 201 });
 }

@@ -19,14 +19,14 @@ export class ListWeightEntriesUseCase {
   }
 
   /**
-   * @param input - username
+   * @param input - email
    * @returns List of weight entries.
    * @throws {z.ZodError} If validation fails.
    */
   public async execute(input: ListWeightEntriesInput): Promise<WeightEntry[]> {
     const validated = listWeightSchema.parse(input);
-    const normalizedUsername = validated.username.toLowerCase();
+    const normalizedEmail = validated.email.toLowerCase();
 
-    return this.weightRepo.list_by_username(normalizedUsername);
+    return this.weightRepo.list_by_email(normalizedEmail);
   }
 }

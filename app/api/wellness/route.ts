@@ -17,7 +17,7 @@ export async function GET() {
   if (!profile) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
 
   const repo = new SupabaseWellnessRepository(supabase);
-  const entries = await repo.list(profile.username);
+  const entries = await repo.list(profile.email);
   return NextResponse.json({ entries }, { status: 200 });
 }
 
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   const repo = new SupabaseWellnessRepository(supabase);
   const usecase = new LogWellnessEntryUseCase(repo);
-  const entry = await usecase.execute({ username: profile.username, metric, value, date });
+  const entry = await usecase.execute({ email: profile.email, metric, value, date });
 
   return NextResponse.json({ entry }, { status: 201 });
 }

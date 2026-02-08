@@ -20,7 +20,7 @@ type SessionValue = {
   questionnaireData: QuestionnaireData | null;
   isDemo: boolean;
   loading: boolean;
-  username: string | null;
+  email: string | null;
   saveQuestionnaire: (data: QuestionnaireData) => void;
   completeSignup: (overrideData?: QuestionnaireData) => Promise<void>;
   startDemo: () => { profile: Profile; entries: WeightEntry[] };
@@ -60,7 +60,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setProfile(
         data.profile
           ? {
-              username: data.profile.username,
+              email: data.profile.email,
               height: data.profile.height,
               age: data.profile.age,
               initialWeight: data.profile.initialWeight,
@@ -97,8 +97,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const completeSignup = useCallback(
     async (overrideData?: QuestionnaireData) => {
       const source = overrideData ?? questionnaireData;
-      if (!source?.email || !source.password || !source.username) {
-        throw new Error("Username, email, and password are required to sign up.");
+      if (!source?.email || !source.password) {
+        throw new Error("Email and password are required to sign up.");
       }
 
       setLoading(true);
@@ -109,7 +109,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({
             email: source.email,
             password: source.password,
-            username: source.username,
             age: source.age,
             height: source.height,
             weight: source.weight,
@@ -123,7 +122,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
         const data = await res.json();
         setProfile({
-          username: data.profile.username,
+          email: data.profile.email,
           height: data.profile.height,
           age: data.profile.age,
           initialWeight: data.profile.initialWeight,
@@ -170,11 +169,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           ...prev.filter((w) => !(w.metric === metric && w.date === (date ?? w.date))),
           {
             id: `local-${Date.now()}`,
-            username: "demo-user",
+            email: "demo@example.com",
             metric,
             value,
             date: date ?? new Date().toISOString().split("T")[0],
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
           },
         ]);
         return;
@@ -210,7 +209,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       profile,
-      username: profile?.username ?? null,
+      email: profile?.email ?? null,
       entries,
       wellnessEntries,
       questionnaireData,

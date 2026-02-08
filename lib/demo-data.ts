@@ -24,5 +24,5 @@ export const demoWeight: WeightEntry[] = (demo_json.weight as DemoWeightRaw[]).m
   id: row.id ?? `demo-weight-${idx}`,
   weight: row.weight,
   date: row.date,
-  username: "demo-user",
+  email: "demo@example.com",
 }));

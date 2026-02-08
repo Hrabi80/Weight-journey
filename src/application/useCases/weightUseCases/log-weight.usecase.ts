@@ -16,23 +16,23 @@ export class LogWeightEntryUseCase {
   }
 
   /**
-   * @param input - username, weight, date
+   * @param input - email, weight, date
    * @returns Created or updated WeightEntry.
    * @throws {z.ZodError} If validation fails.
    */
   public async execute(input: LogWeightEntryInput): Promise<WeightEntry> {
     const validated = logWeightSchema.parse(input);
-    const normalizedUsername = validated.username.toLowerCase();
+    const normalizedEmail = validated.email.toLowerCase();
 
-    const existing = await this.weightRepo.find_by_username_and_date(
-      normalizedUsername,
+    const existing = await this.weightRepo.find_by_email_and_date(
+      normalizedEmail,
       validated.date
     );
 
     if (!existing) {
       // First log of the day: create.
       return this.weightRepo.create({
-        username: normalizedUsername,
+        email: normalizedEmail,
         weight: validated.weight,
         date: validated.date,
       });

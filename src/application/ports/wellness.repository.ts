@@ -25,21 +25,21 @@ export interface WellnessRepository {
   /**
    * Lists wellness entries for a user and metric.
    *
-   * @param username - Owner username.
+   * @param email - Owner email.
    * @param metric - Which metric to list.
    * @returns A list of entries (often sorted by date desc).
    */
-  list_by_username_and_metric(
-    username: string,
+  list_by_email_and_metric(
+    email: string,
     metric: WellnessMetric
   ): Promise<WellnessEntry[]>;
 
    /**
-   * Finds a wellness entry by username + metric + date.
+   * Finds a wellness entry by email + metric + date.
    * This supports the "one metric value per day" rule.
    */
-  find_by_username_metric_date(
-    username: string,
+  find_by_email_metric_date(
+    email: string,
     metric: WellnessMetric,
     date: string
   ): Promise<WellnessEntry | null>;

@@ -31,23 +31,6 @@ export function AccountStep({ register, errors, onBack, submitting }: AccountSte
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
-        <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            id="username"
-            type="text"
-            placeholder="your_username"
-            className="pl-10"
-            {...register("username")}
-          />
-        </div>
-        {errors.username?.message && (
-          <p className="text-sm text-destructive mt-1">{String(errors.username.message)}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative">
           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
