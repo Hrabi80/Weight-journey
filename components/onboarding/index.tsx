@@ -12,7 +12,7 @@ import {
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
-import { calculateBMI } from "@/lib/bmi";
+import { calculateBMI } from "@/src/domaine/services/bmi.service";
 import {
   OnboardingFormInputs,
   OnboardingFormValues,

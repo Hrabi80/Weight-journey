@@ -3,7 +3,6 @@
 import { Box } from "@/components/layout";
 
 import { Profile, WeightEntry } from "@/lib/types";
-import { type DemoWellness } from "@/lib/demo-data";
 import { DemoModeAlert } from "./ui/DemoModeAlert";
 import { useDashboardState } from "./use-dashboard-state";
 import { KpiGrid } from "./ui/KPIGrid";
@@ -15,7 +14,6 @@ interface DashboardProps {
   entries: WeightEntry[];
   onLogout: () => void;
   demoMode?: boolean;
-  demoWellness?: DemoWellness;
   wellnessEntries?: import("@/src/domaine/entities/wellness-entry.entity").WellnessEntry[];
 }
 /**
@@ -27,12 +25,10 @@ interface DashboardProps {
  * - it does not contain business logic or long JSX blocks
  */
 export function Dashboard(props: DashboardProps) {
-  const { profile, entries, demoMode = false, demoWellness } = props;
+  const { profile, entries, demoMode = false } = props;
   const state = useDashboardState({
     profile,
     entries,
-    demoMode: demoMode,
-    demoWellness: demoWellness,
     wellnessEntries: props.wellnessEntries,
   });
 

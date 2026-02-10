@@ -1,7 +1,7 @@
 "use client";
 
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import type { BMIResult } from "@/lib/bmi";
+import type { BMIResult } from "@/src/domaine/services/bmi.service";
 import type { OnboardingFormInputs } from "../onboarding-schema";
 
 /**

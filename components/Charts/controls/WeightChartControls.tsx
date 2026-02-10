@@ -26,9 +26,9 @@ export function WeightChartControls({
         <span>Time range</span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
         <Select value={range} onValueChange={(v) => on_range_change(v as RangeMode)}>
-          <SelectTrigger className="h-10 w-[190px] border-border/70">
+          <SelectTrigger className="h-10 w-full border-border/70 sm:w-[190px]">
             <SelectValue placeholder="Range" />
           </SelectTrigger>
           <SelectContent>
@@ -40,7 +40,7 @@ export function WeightChartControls({
           </SelectContent>
         </Select>
 
-        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
           <Type className="h-4 w-4 text-primary" />
           <ToggleGroup
             type="single"
@@ -48,7 +48,7 @@ export function WeightChartControls({
             onValueChange={(value) => {
               if (value) on_x_label_size_change(value as XLabelSize);
             }}
-            className="justify-start"
+            className="w-full justify-start sm:w-auto"
           >
             <ToggleGroupItem value="sm" aria-label="Small x-axis labels">
               S

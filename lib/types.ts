@@ -1,4 +1,4 @@
-import { BMIResult } from "./bmi";
+import type { BMIResult } from "@/src/domaine/services/bmi.service";
 
 export interface Profile {
   email: string;

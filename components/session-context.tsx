@@ -9,9 +9,16 @@ import {
   useState,
 } from "react";
 
-import { generateDemoData } from "@/lib/session";
-import { Profile, QuestionnaireData, WeightEntry } from "@/lib/types";
+import type {
+  DashboardSession,
+  DashboardSessionRepository,
+} from "@/src/application/ports/dashboard-session.repository";
+import type { Profile, QuestionnaireData, WeightEntry } from "@/lib/types";
 import type { WellnessEntry } from "@/src/domaine/entities/wellness-entry.entity";
+import { BackendDashboardSessionRepository } from "@/src/infrastructure/repositories/backend-dashboard-session.repository";
+import { DemoDashboardSessionRepository } from "@/src/infrastructure/repositories/demo-dashboard-session.repository";
+
+type SessionMode = "backend" | "demo";
 
 type SessionValue = {
   profile: Profile | null;
@@ -31,67 +38,75 @@ type SessionValue = {
 };
 
 const SessionContext = createContext<SessionValue | null>(null);
+const backend_session_repo = new BackendDashboardSessionRepository();
+const demo_session_repo = new DemoDashboardSessionRepository();
+
+function today_key(): string {
+  return new Date().toISOString().split("T")[0];
+}
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [entries, setEntries] = useState<WeightEntry[]>([]);
   const [wellnessEntries, setWellnessEntries] = useState<WellnessEntry[]>([]);
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData | null>(null);
-  const [isDemo, setIsDemo] = useState(false);
+  const [mode, setMode] = useState<SessionMode>("backend");
   const [loading, setLoading] = useState(false);
+  const isDemo = mode === "demo";
+
+  const get_active_repo = useCallback((): DashboardSessionRepository => {
+    return mode === "demo" ? demo_session_repo : backend_session_repo;
+  }, [mode]);
+
+  const apply_session = useCallback(
+    (session: DashboardSession, target_mode: SessionMode) => {
+      setProfile(session.profile);
+      setEntries(session.entries);
+      setWellnessEntries(session.wellnessEntries);
+      setMode(target_mode);
+    },
+    []
+  );
 
   const resetState = useCallback(() => {
     setProfile(null);
     setEntries([]);
     setWellnessEntries([]);
     setQuestionnaireData(null);
-    setIsDemo(false);
+    setMode("backend");
   }, []);
 
   const refreshFromBackend = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/me", { cache: "no-store" });
-      if (!res.ok) {
-        if (res.status === 401) resetState();
+      const session = await backend_session_repo.load();
+      if (!session) {
+        resetState();
         return;
       }
-      const data = await res.json();
-      setProfile(
-        data.profile
-          ? {
-              email: data.profile.email,
-              height: data.profile.height,
-              age: data.profile.age,
-              initialWeight: data.profile.initialWeight,
-            }
-          : null,
-      );
-      setEntries(data.entries ?? []);
-      setWellnessEntries(data.wellnessEntries ?? []);
-      setIsDemo(false);
+      apply_session(session, "backend");
     } finally {
       setLoading(false);
     }
-  }, [resetState]);
+  }, [apply_session, resetState]);
 
   useEffect(() => {
     void refreshFromBackend();
   }, [refreshFromBackend]);
 
   const startDemo = useCallback(() => {
-    const session = generateDemoData();
-    setProfile(session.profile);
-    setEntries(session.entries);
-    setWellnessEntries([]);
+    const session = demo_session_repo.create_seed_session();
+    apply_session(session, "demo");
     setQuestionnaireData(null);
-    setIsDemo(true);
-    return session;
-  }, []);
+    return {
+      profile: session.profile,
+      entries: session.entries,
+    };
+  }, [apply_session]);
 
   const saveQuestionnaire = useCallback((data: QuestionnaireData) => {
     setQuestionnaireData(data);
-    setIsDemo(false);
+    setMode("backend");
   }, []);
 
   const completeSignup = useCallback(
@@ -121,90 +136,61 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         }
 
         const data = await res.json();
-        setProfile({
-          email: data.profile.email,
-          height: data.profile.height,
-          age: data.profile.age,
-          initialWeight: data.profile.initialWeight,
-        });
-        setEntries(data.entries ?? []);
-        setWellnessEntries([]);
+        apply_session(
+          {
+            profile: {
+              email: data.profile.email,
+              height: data.profile.height,
+              age: data.profile.age,
+              initialWeight: data.profile.initialWeight,
+            },
+            entries: data.entries ?? [],
+            wellnessEntries: [],
+          },
+          "backend"
+        );
         setQuestionnaireData(source);
-        setIsDemo(false);
       } finally {
         setLoading(false);
       }
     },
-    [questionnaireData],
+    [apply_session, questionnaireData],
   );
 
-  const addWeight = useCallback(async (weight: number) => {
-    if (isDemo) {
+  const addWeight = useCallback(
+    async (weight: number) => {
+      const entry = await get_active_repo().log_weight(weight, today_key());
       setEntries((prev) => [
-        ...prev,
-        { id: `local-${Date.now()}`, weight, date: new Date().toISOString().split("T")[0] },
+        ...prev.filter((existing_entry) => existing_entry.date !== entry.date),
+        entry,
       ]);
-      return;
-    }
-
-    const res = await fetch("/api/weight", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ weight }),
-    });
-
-    if (!res.ok) {
-      const payload = await res.json().catch(() => ({}));
-      throw new Error(payload.error ?? "Could not save weight.");
-    }
-
-    const data = await res.json();
-    setEntries((prev) => [...prev.filter((e) => e.date !== data.entry.date), data.entry]);
-  }, [isDemo]);
+    },
+    [get_active_repo]
+  );
 
   const logWellness = useCallback(
     async (metric: WellnessEntry["metric"], value: number, date?: string) => {
-      if (isDemo) {
-        setWellnessEntries((prev) => [
-          ...prev.filter((w) => !(w.metric === metric && w.date === (date ?? w.date))),
-          {
-            id: `local-${Date.now()}`,
-            email: "demo@example.com",
-            metric,
-            value,
-            date: date ?? new Date().toISOString().split("T")[0],
-            created_at: new Date().toISOString(),
-          },
-        ]);
-        return;
-      }
-
-      const res = await fetch("/api/wellness", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ metric, value, date }),
+      const effective_date = date ?? today_key();
+      const data = await get_active_repo().log_wellness({
+        metric,
+        value,
+        date: effective_date,
       });
 
-      if (!res.ok) {
-        const payload = await res.json().catch(() => ({}));
-        throw new Error(payload.error ?? "Could not log wellness metric.");
-      }
-
-      const data = await res.json();
       setWellnessEntries((prev) => [
-        ...prev.filter((w) => !(w.metric === data.entry.metric && w.date === data.entry.date)),
-        data.entry,
+        ...prev.filter((entry) => !(entry.metric === data.metric && entry.date === data.date)),
+        data,
       ]);
     },
-    [isDemo],
+    [get_active_repo],
   );
 
   const reset = useCallback(async () => {
-    if (!isDemo) {
+    if (mode === "backend") {
       await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     }
     resetState();
-  }, [resetState, isDemo]);
+  }, [mode, resetState]);
 
   const value = useMemo(
     () => ({

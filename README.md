@@ -12,7 +12,7 @@ WeightWise helps you and your coach or nutritionist keep tabs on progress. Enter
 - **Loading UX** – dedicated spinner/loader components for route transitions and suspense fallbacks.
 
 ## Core pieces
-- **Session state** – `components/session-context.tsx` keeps profile, weight entries, questionnaire answers, and demo state in memory. User sessions are generated locally (`lib/session.ts`), no backend required.
+- **Session state** – `components/session-context.tsx` keeps profile, weight entries, questionnaire answers, and demo state in memory. It switches between backend and demo repositories at one boundary.
 - **Charts** – Recharts-powered weight chart with BMI zones (`components/weight-chart.tsx`) and wellness metrics chart (`components/wellness-metrics-chart.tsx`).
 - **Trackers** – Additional quick-log cards for sleep, calories, and steps (`components/additional-trackers.tsx`).
 - **UI kit** – Shadcn-inspired controls in `components/ui/*` plus layout primitives (`Box`, `Flex`, `Stack`, `Grid`, `Container`, etc.) in `components/layout/*`.
@@ -29,7 +29,7 @@ pnpm start     # serve the production build
 
 ## Helpful routes & query params
 - `/questionnaire?mode=login` – open the signup step in login mode.
-- `/dashboard?demo=1` – launch the dashboard with demo data seeded from `generateDemoData`.
+- `/dashboard?demo=1` – launch the dashboard with demo data from `src/infrastructure/repositories/demo-dashboard-session.repository.ts`.
 
 ## Project layout (selected)
 ```
@@ -47,8 +47,10 @@ components/
   layout/*               # layout primitives
   ui/*                   # form and surface primitives
 lib/
-  session.ts             # demo/user session generation
-  bmi.ts                 # BMI helpers
+  types.ts               # UI-facing types
+src/
+  domaine/services/bmi.service.ts                          # BMI domain rules
+  infrastructure/repositories/demo-dashboard-session.repository.ts  # demo adapter
 ```
 
 ## Notes for developers

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Area,
   ComposedChart,
@@ -14,11 +14,18 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 
-import { getBMIForWeight, getWeightRanges } from "@/lib/bmi";
+import { getBMIForWeight, getWeightRanges } from "@/src/domaine/services/bmi.service";
+import { BuildWeightChartExportUseCase } from "@/src/application/useCases/dashboard/build-weight-chart-export.usecase";
+import { download_binary_file, download_text_file } from "@/src/infrastructure/browser/file-download";
+import {
+  map_tabular_export_to_csv,
+  map_tabular_export_to_pdf_bytes,
+} from "@/src/presentation/mappers/tabular-export.mapper";
 import type { WeightEntry } from "@/lib/types";
 import type { RangeMode, WellnessMetric, XLabelSize } from "./types";
 import type { CaloriesEntry, SleepEntry, StepsEntry } from "./wellness-metrics-chart";
 import { WeightTooltip } from "./Tooltips/WeightTooltip";
+import { ChartExportButtons } from "./controls/ChartExportButtons";
 import { WeightChartControls } from "./controls/WeightChartControls";
 
 interface WeightChartProps {
@@ -69,6 +76,20 @@ function x_axis_font_size(size: XLabelSize): number {
   return 12;
 }
 
+const BMI_LEGEND_ITEMS = [
+  {
+    colorClass: "bg-zone-underweight",
+    desktopLabel: "Underweight (caution)",
+    mobileLabel: "Underweight",
+  },
+  { colorClass: "bg-zone-healthy", desktopLabel: "Healthy", mobileLabel: "Healthy" },
+  { colorClass: "bg-zone-overweight", desktopLabel: "Overweight", mobileLabel: "Overweight" },
+  { colorClass: "bg-zone-obese", desktopLabel: "Obesity I", mobileLabel: "Obesity I" },
+  { colorClass: "bg-zone-obese-strong", desktopLabel: "Obesity II+", mobileLabel: "Obesity II+" },
+] as const;
+
+const build_weight_chart_export = new BuildWeightChartExportUseCase();
+
 export function WeightChart({
   data,
   height,
@@ -80,7 +101,16 @@ export function WeightChart({
 }: WeightChartProps) {
   const [range, setRange] = useState<RangeMode>("1m");
   const [xLabelSize, setXLabelSize] = useState<XLabelSize>("md");
+  const [isMobile, setIsMobile] = useState(false);
   const ranges = useMemo(() => getWeightRanges(height), [height]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const syncIsMobile = () => setIsMobile(mediaQuery.matches);
+    syncIsMobile();
+    mediaQuery.addEventListener("change", syncIsMobile);
+    return () => mediaQuery.removeEventListener("change", syncIsMobile);
+  }, []);
 
   const overlayMap = useMemo<OverlayMap>(() => {
     if (!overlayEnabled) return new Map();
@@ -153,6 +183,42 @@ export function WeightChart({
 
   const showWellnessAxis = showSleep || showSteps;
   const wellnessOrientation: "left" | "right" = "right";
+  const chartMargin = isMobile
+    ? { top: 12, right: 8, left: 0, bottom: 8 }
+    : { top: 20, right: 30, left: 0, bottom: 10 };
+  const xTickFontSize = isMobile
+    ? Math.max(10, x_axis_font_size(xLabelSize) - 1)
+    : x_axis_font_size(xLabelSize);
+  const yTickFontSize = isMobile ? 11 : 12;
+  const yAxisWidth = isMobile ? 34 : 40;
+
+  const build_export_document = () =>
+    build_weight_chart_export.execute({
+      range,
+      overlayEnabled,
+      showSleep,
+      showCalories,
+      showSteps,
+      rows: visibleData.map((row) => ({
+        date: row.isoDate,
+        weight: row.weight,
+        sleep: row.sleep,
+        calories: row.calories,
+        steps: row.steps,
+      })),
+    });
+
+  const handle_export_csv = () => {
+    const document = build_export_document();
+    const csv = map_tabular_export_to_csv(document);
+    download_text_file(`${document.fileNameStem}.csv`, csv, "text/csv;charset=utf-8");
+  };
+
+  const handle_export_pdf = () => {
+    const document = build_export_document();
+    const pdf = map_tabular_export_to_pdf_bytes(document);
+    download_binary_file(`${document.fileNameStem}.pdf`, pdf, "application/pdf");
+  };
 
   return (
     <div className="w-full">
@@ -162,10 +228,16 @@ export function WeightChart({
         x_label_size={xLabelSize}
         on_x_label_size_change={setXLabelSize}
       />
+      <ChartExportButtons
+        className="mb-3 flex flex-wrap items-center gap-2"
+        onExportCsv={handle_export_csv}
+        onExportPdf={handle_export_pdf}
+        disabled={visibleData.length === 0}
+      />
 
-      <div className="relative h-80 w-full">
+      <div className="relative h-[18rem] w-full sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={visibleData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
+          <ComposedChart data={visibleData} margin={chartMargin}>
           <defs>
             <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.4} />
@@ -213,15 +285,16 @@ export function WeightChart({
             tickFormatter={(v) => format_x_tick(String(v), range)}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--muted-foreground)", fontSize: x_axis_font_size(xLabelSize) }}
-            minTickGap={16}
+            tick={{ fill: "var(--muted-foreground)", fontSize: xTickFontSize }}
+            minTickGap={isMobile ? 28 : 16}
+            interval={isMobile ? "preserveStartEnd" : undefined}
           />
           <YAxis
             domain={yDomain}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-            width={40}
+            tick={{ fill: "var(--muted-foreground)", fontSize: yTickFontSize }}
+            width={yAxisWidth}
           />
           {showCalories && (
             <YAxis
@@ -229,8 +302,8 @@ export function WeightChart({
               orientation="right"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-              width={40}
+              tick={{ fill: "var(--muted-foreground)", fontSize: yTickFontSize }}
+              width={yAxisWidth}
             />
           )}
 
@@ -240,8 +313,8 @@ export function WeightChart({
               orientation={wellnessOrientation as "left" | "right"}
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-              width={40}
+              tick={{ fill: "var(--muted-foreground)", fontSize: yTickFontSize }}
+              width={yAxisWidth}
             />
           )}
 
@@ -281,8 +354,13 @@ export function WeightChart({
             dataKey="weight"
             stroke="var(--primary)"
             strokeWidth={3}
-            dot={{ fill: "var(--primary)", strokeWidth: 2, r: 5, stroke: "var(--primary)" }}
-            activeDot={{ r: 7, stroke: "red", strokeWidth: 2, fill: "var(--card)" }}
+            dot={{
+              fill: "var(--primary)",
+              strokeWidth: isMobile ? 1.5 : 2,
+              r: isMobile ? 3.5 : 5,
+              stroke: "var(--primary)",
+            }}
+            activeDot={{ r: isMobile ? 5 : 7, stroke: "red", strokeWidth: 2, fill: "var(--card)" }}
           />
 
           {showSleep && (
@@ -324,28 +402,23 @@ export function WeightChart({
         </ComposedChart>
         </ResponsiveContainer>
 
-        <div className="absolute top-2 right-2 flex flex-col gap-1 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-zone-underweight" />
-            <span className="text-muted-foreground">Underweight (caution)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-zone-healthy" />
-            <span className="text-muted-foreground">Healthy</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-zone-overweight" />
-            <span className="text-muted-foreground">Overweight</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-zone-obese" />
-            <span className="text-muted-foreground">Obesity I</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded bg-zone-obese-strong" />
-            <span className="text-muted-foreground">Obesity II+</span>
-          </div>
+        <div className="absolute top-2 right-2 hidden flex-col gap-1 text-xs sm:flex">
+          {BMI_LEGEND_ITEMS.map((item) => (
+            <div key={item.desktopLabel} className="flex items-center gap-1">
+              <div className={`h-3 w-3 rounded ${item.colorClass}`} />
+              <span className="text-muted-foreground">{item.desktopLabel}</span>
+            </div>
+          ))}
         </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:hidden">
+        {BMI_LEGEND_ITEMS.map((item) => (
+          <div key={item.mobileLabel} className="flex items-center gap-1">
+            <div className={`h-2.5 w-2.5 rounded ${item.colorClass}`} />
+            <span className="text-muted-foreground">{item.mobileLabel}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

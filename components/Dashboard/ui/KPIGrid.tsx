@@ -2,7 +2,8 @@ import { Activity, Target, TrendingDown, TrendingUp } from "lucide-react";
 
 import KPICard from "@/components/KpiCard";
 import { Grid, Text } from "@/components/layout";
-import { getUserWeighIndicatorColor, type BMIResult } from "@/lib/bmi";
+import type { BMIResult } from "@/src/domaine/services/bmi.service";
+import { getUserWeightIndicatorColor } from "@/src/presentation/mappers/bmi-indicator-color";
 
 interface KpiGridProps {
   latestWeight: number;
@@ -72,9 +73,9 @@ export function KpiGrid({ latestWeight,  weightChange, lastDelta, bmiResult }: K
         <KPICard
           title="Current BMI"
           value={bmiResult.bmi.toFixed(1)}
-          valueClassName={getUserWeighIndicatorColor(bmiResult.category)}
+          valueClassName={getUserWeightIndicatorColor(bmiResult.category)}
           subTitle={
-            <Text size="xs" className={getUserWeighIndicatorColor(bmiResult.category)}>
+            <Text size="xs" className={getUserWeightIndicatorColor(bmiResult.category)}>
               {bmiResult.label}
             </Text>
           }

@@ -21,7 +21,14 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
+import { BuildWellnessChartExportUseCase } from "@/src/application/useCases/dashboard/build-wellness-chart-export.usecase";
+import { download_binary_file, download_text_file } from "@/src/infrastructure/browser/file-download";
+import {
+  map_tabular_export_to_csv,
+  map_tabular_export_to_pdf_bytes,
+} from "@/src/presentation/mappers/tabular-export.mapper";
 import { WellnessTooltip } from "./Tooltips/WellnessTooltip";
+import { ChartExportButtons } from "./controls/ChartExportButtons";
 import { WellnessChartControls } from "./controls/WellnessChartControls";
 import type { RangeMode, WellnessMetric as MetricMode, XLabelSize } from "./types";
 
@@ -43,6 +50,8 @@ type Merged = {
   steps?: number;
   stepsK?: number;
 };
+
+const build_wellness_chart_export = new BuildWellnessChartExportUseCase();
 
 function safe_parse_iso(value: string): Date | null {
   try {
@@ -140,6 +149,30 @@ export function WellnessMetricsChart({
 
   const wellness_orientation = show_calories_axis ? "right" : "left";
 
+  const build_export_document = () =>
+    build_wellness_chart_export.execute({
+      metric,
+      range,
+      rows: visible_data.map((row) => ({
+        date: row.date,
+        sleep: row.sleep,
+        calories: row.calories,
+        steps: row.steps,
+      })),
+    });
+
+  const handle_export_csv = () => {
+    const document = build_export_document();
+    const csv = map_tabular_export_to_csv(document);
+    download_text_file(`${document.fileNameStem}.csv`, csv, "text/csv;charset=utf-8");
+  };
+
+  const handle_export_pdf = () => {
+    const document = build_export_document();
+    const pdf = map_tabular_export_to_pdf_bytes(document);
+    download_binary_file(`${document.fileNameStem}.pdf`, pdf, "application/pdf");
+  };
+
   return (
     <Card className="border-border/60 shadow-md h-full">
       <CardHeader className="pb-2">
@@ -155,6 +188,12 @@ export function WellnessMetricsChart({
           on_range_change={set_range}
           x_label_size={x_label_size}
           on_x_label_size_change={set_x_label_size}
+        />
+        <ChartExportButtons
+          className="mt-3 flex flex-wrap items-center gap-2"
+          onExportCsv={handle_export_csv}
+          onExportPdf={handle_export_pdf}
+          disabled={visible_data.length === 0}
         />
       </CardHeader>
 

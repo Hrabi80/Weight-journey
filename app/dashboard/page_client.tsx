@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 import { Spinner } from "@/components/spinner";
 import { useSession } from "@/components/session-context";
-import { demoWellness } from "@/lib/demo-data";
 import { Dashboard } from "@/components/Dashboard";
 
 interface PageClientProps {
@@ -54,8 +53,7 @@ export default function PageClient({ demoMode }: PageClientProps) {
       profile={profile!}
       entries={entries}
       demoMode={demoMode}
-      demoWellness={demoMode ? demoWellness : undefined}
-      wellnessEntries={demoMode ? undefined : wellnessEntries}
+      wellnessEntries={wellnessEntries}
       onLogout={() => {
         reset();
         router.replace("/");

@@ -140,7 +140,10 @@ export function LogWeightCard(props: LogWeightCardProps) {
               }
             />
 
-            <AlertDialogContent size="default" className="sm:max-w-xl">
+            <AlertDialogContent
+              size="default"
+              className="z-[60] w-[calc(100vw-1rem)] max-h-[calc(100dvh-6rem)] overflow-y-auto top-[5.5rem] -translate-y-0 sm:top-1/2 sm:w-full sm:max-h-[85dvh] sm:max-w-xl sm:-translate-y-1/2"
+            >
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-foreground">
                   Log today&apos;s wellness
@@ -164,18 +167,18 @@ export function LogWeightCard(props: LogWeightCardProps) {
                       </Text>
                     </Box>
                   </Flex>
-                  <Flex align={{ base: "stretch", sm: "center" }} gap="sm">
+                  <Flex align="center" gap="sm" className="flex-nowrap">
                     <Input
                       type="number"
-                      placeholder="Enter weight in kg"
+                      placeholder="Weight (kg)"
                       value={newWeight}
                       onChange={(e) => on_change_weight(e.target.value)}
                       min={20}
                       max={500}
                       step="0.1"
-                      className="flex-1"
+                      className="min-w-0 flex-1"
                     />
-                    <Button onClick={handleLogWeight} className="sm:w-auto">
+                    <Button onClick={handleLogWeight} className="shrink-0 px-3 sm:w-auto">
                       <Plus className="h-4 w-4 mr-2" />
                       Save
                     </Button>
@@ -202,24 +205,29 @@ export function LogWeightCard(props: LogWeightCardProps) {
                       </Text>
                     </Box>
                   </Flex>
-                  <Flex gap="sm" className="flex-col sm:flex-row">
+                  <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
                     <Input
                       type="time"
                       value={sleepStart}
                       onChange={(e) => setSleepStart(e.target.value)}
-                      disabled={ loading === "sleep"}
+                      disabled={loading === "sleep"}
+                      className="min-w-0"
                     />
                     <Input
                       type="time"
                       value={sleepEnd}
                       onChange={(e) => setSleepEnd(e.target.value)}
-                    disabled={ loading === "sleep"}
+                      disabled={loading === "sleep"}
+                      className="min-w-0"
                     />
-                    <Button onClick={handleLogSleep} 
-                 disabled={ loading === "sleep"}> 
+                    <Button
+                      onClick={handleLogSleep}
+                      disabled={loading === "sleep"}
+                      className="col-span-2 h-9 w-full whitespace-nowrap sm:col-span-1 sm:w-auto"
+                    >
                       {loading === "sleep" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Log sleep"}
                     </Button>
-                  </Flex>
+                  </div>
                 </Box>
 
                 <Box className="rounded-xl border border-border/60 bg-muted/30 p-4">
@@ -234,16 +242,19 @@ export function LogWeightCard(props: LogWeightCardProps) {
                       </Text>
                     </Box>
                   </Flex>
-                  <Flex gap="sm">
+                  <Flex align="center" gap="sm" className="flex-nowrap">
                     <Input
                       type="number"
-                      placeholder="e.g. 9000"
+                      placeholder="Steps"
                       value={steps}
                       onChange={(e) => setSteps(e.target.value)}
                       disabled={loading === "steps"}
+                      className="min-w-0 flex-1"
                     />
-                    <Button onClick={handleLogSteps} 
-                    disabled={loading === "steps"}
+                    <Button
+                      onClick={handleLogSteps}
+                      disabled={loading === "steps"}
+                      className="shrink-0 whitespace-nowrap px-3"
                     >
                       {loading === "steps" ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -266,17 +277,21 @@ export function LogWeightCard(props: LogWeightCardProps) {
                       </Text>
                     </Box>
                   </Flex>
-                  <Flex gap="sm">
+                  <Flex align="center" gap="sm" className="flex-nowrap">
                     <Input
                       type="number"
-                      placeholder="e.g. 2100"
+                      placeholder="Calories"
                       value={calories}
                       onChange={(e) => setCalories(e.target.value)}
-                   disabled={ loading === "calories"}
+                      disabled={loading === "calories"}
+                      className="min-w-0 flex-1"
                     />
-                    <Button onClick={handleLogCalories}
-                    disabled={ loading === "calories"}> 
-                      {loading === "calories" ? ( 
+                    <Button
+                      onClick={handleLogCalories}
+                      disabled={loading === "calories"}
+                      className="shrink-0 whitespace-nowrap px-3"
+                    >
+                      {loading === "calories" ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         "Log calories"

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { BMIResult } from "@/lib/bmi";
+import type { BMIResult } from "@/src/domaine/services/bmi.service";
 
 export const onboardingSchema = z.object({
   age:z.coerce

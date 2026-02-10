@@ -1,13 +1,27 @@
+export type BMICategory = "underweight" | "healthy" | "overweight" | "obese";
+
 export interface BMIResult {
   bmi: number;
-  category: "underweight" | "healthy" | "overweight" | "obese";
+  category: BMICategory;
   label: string;
   description: string;
 }
 
-export function calculateBMI(weightKg: number, heightCm: number): BMIResult {
+export interface WeightRanges {
+  underweightMax: number;
+  healthyMax: number;
+  overweightMax: number;
+  obeseLevel1Max: number;
+  obeseLevel2Max: number;
+}
+
+function getHeightSquared(heightCm: number): number {
   const heightM = heightCm / 100;
-  const bmi = weightKg / (heightM * heightM);
+  return heightM * heightM;
+}
+
+export function calculateBMI(weightKg: number, heightCm: number): BMIResult {
+  const bmi = weightKg / getHeightSquared(heightCm);
 
   if (bmi < 18.5) {
     return {
@@ -49,13 +63,11 @@ export function calculateBMI(weightKg: number, heightCm: number): BMIResult {
 }
 
 export function getBMIForWeight(weightKg: number, heightCm: number): number {
-  const heightM = heightCm / 100;
-  return weightKg / (heightM * heightM);
+  return weightKg / getHeightSquared(heightCm);
 }
 
-export function getWeightRanges(heightCm: number) {
-  const heightM = heightCm / 100;
-  const heightSquared = heightM * heightM;
+export function getWeightRanges(heightCm: number): WeightRanges {
+  const heightSquared = getHeightSquared(heightCm);
 
   return {
     underweightMax: 18.5 * heightSquared,
@@ -65,18 +77,3 @@ export function getWeightRanges(heightCm: number) {
     obeseLevel2Max: 40 * heightSquared,
   };
 }
-
-export const getUserWeighIndicatorColor = (category: string) => {
-    switch (category) {
-      case "underweight":
-        return "text-zone-underweight";
-      case "healthy":
-        return "text-primary"; // keep palette, swap greens for orange accent
-      case "overweight":
-        return "text-zone-overweight";
-      case "obese":
-        return "text-zone-obese";
-      default:
-        return "text-primary";
-    }
-  };
