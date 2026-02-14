@@ -55,6 +55,7 @@ export function Dashboard(props: DashboardProps) {
         <ProgressSection
           weights={state.weights}
           height={profile.height}
+          userEmail={profile.email}
           sleep={state.sleepEntries}
           calories={state.caloriesEntries}
           steps={state.stepsEntries}

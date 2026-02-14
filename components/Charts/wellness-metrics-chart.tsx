@@ -38,6 +38,7 @@ export type CaloriesEntry = { date: string; kcal: number };
 export type StepsEntry = { date: string; steps: number };
 
 interface WellnessMetricsChartProps {
+  userEmail?: string | null;
   sleep: SleepEntry[];
   calories: CaloriesEntry[];
   steps: StepsEntry[];
@@ -87,6 +88,7 @@ function x_axis_font_size(size: XLabelSize): number {
 }
 
 export function WellnessMetricsChart({
+  userEmail,
   sleep,
   calories,
   steps,
@@ -153,6 +155,7 @@ export function WellnessMetricsChart({
     build_wellness_chart_export.execute({
       metric,
       range,
+      userEmail: userEmail ?? undefined,
       rows: visible_data.map((row) => ({
         date: row.date,
         sleep: row.sleep,

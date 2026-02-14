@@ -36,13 +36,10 @@ export class CreateProfileUseCase {
   public async execute(input: CreateProfileInput): Promise<Profile> {
     const validated = createProfileSchema.parse(input);
 
-    // Example: "Ahmed" and "ahmed" become the same email.
-    const normalizedEmail = validated.email.toLowerCase();
-
     // Rule #1: email must be unique.
-    const existingByEmail = await this.profileRepo.find_by_email(normalizedEmail);
+    const existingByEmail = await this.profileRepo.find_by_email(validated.email);
     if (existingByEmail) {
-      throw new EmailAlreadyExistsError(normalizedEmail);
+      throw new EmailAlreadyExistsError(validated.email);
     }
 
     // Rule #2: one profile per auth user.
@@ -55,7 +52,7 @@ export class CreateProfileUseCase {
 
     // Create via the repository.
     return this.profileRepo.create({
-      email: normalizedEmail,
+      email: validated.email,
       auth_user_id: validated.authUserId,
       age: validated.age,
       height: validated.height,

@@ -33,12 +33,20 @@ const WellnessMetricsChart = dynamic(
 interface ProgressSectionProps {
   weights: WeightEntry[];
   height: number;
+  userEmail: string;
   sleep: SleepEntry[];
   calories: CaloriesEntry[];
   steps: StepsEntry[];
 }
 
-export function ProgressSection({ weights, height, sleep, calories, steps }: ProgressSectionProps) {
+export function ProgressSection({
+  weights,
+  height,
+  userEmail,
+  sleep,
+  calories,
+  steps,
+}: ProgressSectionProps) {
   const { overlayEnabled, overlayMetric, setOverlayMetric, toggleOverlay } = useWeightOverlay();
 
   return (
@@ -60,6 +68,7 @@ export function ProgressSection({ weights, height, sleep, calories, steps }: Pro
               <WeightChart
                 data={weights}
                 height={height}
+                userEmail={userEmail}
                 overlayEnabled={overlayEnabled}
                 overlayMetric={overlayMetric}
                 sleep={sleep}
@@ -76,7 +85,12 @@ export function ProgressSection({ weights, height, sleep, calories, steps }: Pro
       </Grid.Col>
 
       <Grid.Col span={{ base: 1, lg: 12 }}>
-        <WellnessMetricsChart sleep={sleep} calories={calories} steps={steps} />
+        <WellnessMetricsChart
+          userEmail={userEmail}
+          sleep={sleep}
+          calories={calories}
+          steps={steps}
+        />
       </Grid.Col>
     </Grid>
   );

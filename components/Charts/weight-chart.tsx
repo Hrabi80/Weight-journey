@@ -31,6 +31,7 @@ import { WeightChartControls } from "./controls/WeightChartControls";
 interface WeightChartProps {
   data: WeightEntry[];
   height: number;
+  userEmail?: string | null;
   overlayEnabled?: boolean;
   overlayMetric?: WellnessMetric;
   sleep?: SleepEntry[];
@@ -93,6 +94,7 @@ const build_weight_chart_export = new BuildWeightChartExportUseCase();
 export function WeightChart({
   data,
   height,
+  userEmail,
   overlayEnabled = false,
   overlayMetric = "all",
   sleep = [],
@@ -199,6 +201,7 @@ export function WeightChart({
       showSleep,
       showCalories,
       showSteps,
+      userEmail: userEmail ?? undefined,
       rows: visibleData.map((row) => ({
         date: row.isoDate,
         weight: row.weight,
