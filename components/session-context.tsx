@@ -30,6 +30,11 @@ type ProfileApiPayload = {
 
 type CreateProfileApiResponse = {
   profile?: ProfileApiPayload;
+  email?: string;
+  age?: number;
+  height?: number;
+  initialWeight?: number;
+  initial_weight?: number;
   entries?: WeightEntry[];
   wellnessEntries?: WellnessEntry[];
   error?: string;
@@ -134,38 +139,70 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
       setLoading(true);
       try {
-        const res = await fetch("/api/profile", {
+        const sign_up_res = await fetch("/api/auth/sign-up", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: source.email,
             password: source.password,
+          }),
+        });
+
+        if (sign_up_res.status === 409) {
+          const sign_in_res = await fetch("/api/auth/sign-in", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: source.email,
+              password: source.password,
+            }),
+          });
+
+          if (!sign_in_res.ok) {
+            const payload = (await sign_in_res.json().catch(() => null)) as
+              | CreateProfileApiResponse
+              | null;
+            throw new Error(payload?.error ?? payload?.message ?? "Sign in failed");
+          }
+        } else if (!sign_up_res.ok) {
+          const payload = (await sign_up_res.json().catch(() => null)) as
+            | CreateProfileApiResponse
+            | null;
+          throw new Error(
+            payload?.error ?? payload?.message ?? "Signup failed"
+          );
+        }
+
+        const profile_res = await fetch("/api/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             age: source.age,
             height: source.height,
             initialWeight: source.weight,
           }),
         });
-        console.log("🚀 ~ SessionProvider ~ res:", res)
 
-        if (!res.ok) {
-          const payload = (await res.json().catch(() => null)) as CreateProfileApiResponse | null;
-          throw new Error(
-            payload?.error ??
-              payload?.message ??
-              "Signup failed"
-          );
+        if (!profile_res.ok) {
+          const payload = (await profile_res.json().catch(() => null)) as
+            | CreateProfileApiResponse
+            | null;
+          throw new Error(payload?.error ?? payload?.message ?? "Profile creation failed");
         }
 
-        const data = (await res.json()) as CreateProfileApiResponse;
+        const data = (await profile_res.json()) as CreateProfileApiResponse;
+        const profile_payload =
+          data.profile && typeof data.profile === "object" ? data.profile : data;
+
         const initial_weight =
-          typeof data.profile?.initialWeight === "number"
-            ? data.profile.initialWeight
-            : data.profile?.initial_weight;
+          typeof profile_payload.initialWeight === "number"
+            ? profile_payload.initialWeight
+            : profile_payload.initial_weight;
 
         if (
-          typeof data.profile?.email !== "string" ||
-          typeof data.profile.age !== "number" ||
-          typeof data.profile.height !== "number" ||
+          typeof profile_payload.email !== "string" ||
+          typeof profile_payload.age !== "number" ||
+          typeof profile_payload.height !== "number" ||
           typeof initial_weight !== "number"
         ) {
           throw new Error("Invalid profile payload from server.");
@@ -174,9 +211,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         apply_session(
           {
             profile: {
-              email: data.profile.email,
-              height: data.profile.height,
-              age: data.profile.age,
+              email: profile_payload.email,
+              height: profile_payload.height,
+              age: profile_payload.age,
               initialWeight: initial_weight,
             },
             entries: data.entries ?? [],
@@ -222,7 +259,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const reset = useCallback(async () => {
     if (mode === "backend") {
-      await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+      await fetch("/api/auth/sign-out", { method: "POST" }).catch(() => undefined);
     }
     resetState();
   }, [mode, resetState]);

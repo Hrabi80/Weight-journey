@@ -23,7 +23,7 @@ type ApiWellnessResponse = { entry: WellnessEntry };
 
 export class BackendDashboardSessionRepository implements DashboardSessionRepository {
   public async load(): Promise<DashboardSession | null> {
-    const response = await fetch("/api/me", { cache: "no-store" });
+    const response = await fetch("/api/auth/me", { cache: "no-store" });
 
     if (response.status === 401) {
       return null;

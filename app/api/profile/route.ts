@@ -39,31 +39,42 @@ async function get_authenticated_user(
 
 export async function POST(req: Request) {
   const { create_profile, supabase } = await make_profile_use_cases();
-  const body = await req.json();
+  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
 
   if (!body) {
     return NextResponse.json({ message: "Invalid JSON body." }, { status: 400 });
   }
-    const { data: auth, error: auth_error } = await supabase.auth.getUser();
-    console.log("🚀 ~ POST ~ auth_error:", auth_error)
-    console.log("🚀 ~ POST ~ auth:", auth)
+  const { data: auth, error: auth_error } = await supabase.auth.getUser();
   if (auth_error || !auth.user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-try {
-  console.log("come here 1 ....")
+
+  const auth_email = auth.user.email?.trim().toLowerCase();
+  if (!auth_email) {
+    return NextResponse.json(
+      { message: "Authenticated user email is missing." },
+      { status: 400 }
+    );
+  }
+
+  try {
     const result = await create_profile.execute({
-      email: body.email ?? auth.user.email ?? "",
+      email: auth_email,
       authUserId: auth.user.id,
-      age: body.age,
-      height: body.height,
-      initialWeight: body.initialWeight,
+      age: Number(body.age),
+      height: Number(body.height),
+      initialWeight: Number(body.initialWeight),
     });
-    console.log("🚀 ~ POST ~ result:", result)
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    console.log("🚀 ~ POST ~ error:", error)
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { message: "Validation failed.", issues: error.issues },
+        { status: 400 }
+      );
+    }
+
     if (error instanceof EmailAlreadyExistsError) {
       return NextResponse.json({ message: error.message }, { status: 409 });
     }
@@ -72,10 +83,9 @@ try {
       return NextResponse.json({ message: error.message }, { status: 409 });
     }
 
-    // Zod validation errors will land here too (you can format them later)
     console.error("[POST /api/profile] failed", error);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
-  } 
+  }
 }
 
 export async function GET() {
