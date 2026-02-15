@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { BMIResult } from "@/src/domaine/services/bmi.service";
+import { ComponentType, SVGProps } from "react";
 
 export const onboardingSchema = z.object({
   age:z.coerce
@@ -28,3 +29,12 @@ export type OnboardingFormValues = z.output<typeof onboardingSchema>;
 export type OnboardingResult = OnboardingFormValues & { bmiResult: BMIResult };
 
 export type StepId = "age" | "weight" | "height" | "bmi" | "account";
+
+export type  StepConfig = {
+  id: StepId;
+  title: string;
+  description: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+  fields: (keyof OnboardingFormInputs)[];
+  progressIndex: number;
+};

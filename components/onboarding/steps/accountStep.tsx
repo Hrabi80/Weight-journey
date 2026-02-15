@@ -14,7 +14,7 @@ type AccountStepProps = StepFormProps &
 
 /**
  * Step 5: Account creation (email/password).
- * Junior note: the actual submit happens at the form level (type="submit").
+ * note: the actual submit happens at the form level (type="submit").
  * This step only renders fields + submit button.
  */
 export function AccountStep({ register, errors, onBack, submitting }: AccountStepProps) {

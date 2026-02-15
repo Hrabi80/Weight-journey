@@ -12,7 +12,7 @@ export default function PageClient() {
   const router = useRouter();
   const { saveQuestionnaire, completeSignup, startDemo } = useSession();
 
-  const handleComplete = (data: OnboardingResult) => {
+  const handleComplete = async (data: OnboardingResult) => {
     const questionnaireData: QuestionnaireData = {
       age: data.age,
       weight: data.weight,
@@ -23,7 +23,7 @@ export default function PageClient() {
     };
 
     saveQuestionnaire(questionnaireData);
-    completeSignup(questionnaireData);
+    await completeSignup(questionnaireData);
   };
 
   return (

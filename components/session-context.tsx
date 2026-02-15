@@ -20,6 +20,22 @@ import { DemoDashboardSessionRepository } from "@/src/infrastructure/repositorie
 
 type SessionMode = "backend" | "demo";
 
+type ProfileApiPayload = {
+  email?: string;
+  age?: number;
+  height?: number;
+  initialWeight?: number;
+  initial_weight?: number;
+};
+
+type CreateProfileApiResponse = {
+  profile?: ProfileApiPayload;
+  entries?: WeightEntry[];
+  wellnessEntries?: WellnessEntry[];
+  error?: string;
+  message?: string;
+};
+
 type SessionValue = {
   profile: Profile | null;
   entries: WeightEntry[];
@@ -118,7 +134,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
       setLoading(true);
       try {
-        const res = await fetch("/api/auth/signup", {
+        const res = await fetch("/api/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -126,26 +142,45 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
             password: source.password,
             age: source.age,
             height: source.height,
-            weight: source.weight,
+            initialWeight: source.weight,
           }),
         });
+        console.log("🚀 ~ SessionProvider ~ res:", res)
 
         if (!res.ok) {
-          const payload = await res.json().catch(() => ({}));
-          throw new Error(payload.error ?? "Signup failed");
+          const payload = (await res.json().catch(() => null)) as CreateProfileApiResponse | null;
+          throw new Error(
+            payload?.error ??
+              payload?.message ??
+              "Signup failed"
+          );
         }
 
-        const data = await res.json();
+        const data = (await res.json()) as CreateProfileApiResponse;
+        const initial_weight =
+          typeof data.profile?.initialWeight === "number"
+            ? data.profile.initialWeight
+            : data.profile?.initial_weight;
+
+        if (
+          typeof data.profile?.email !== "string" ||
+          typeof data.profile.age !== "number" ||
+          typeof data.profile.height !== "number" ||
+          typeof initial_weight !== "number"
+        ) {
+          throw new Error("Invalid profile payload from server.");
+        }
+
         apply_session(
           {
             profile: {
               email: data.profile.email,
               height: data.profile.height,
               age: data.profile.age,
-              initialWeight: data.profile.initialWeight,
+              initialWeight: initial_weight,
             },
             entries: data.entries ?? [],
-            wellnessEntries: [],
+            wellnessEntries: data.wellnessEntries ?? [],
           },
           "backend"
         );

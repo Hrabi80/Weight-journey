@@ -4,66 +4,72 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SetAllCookies } from "@supabase/ssr";
 import { env } from "@/src/env";
 
-/**
- * Creates a Supabase client configured for Next.js Server Components / Route Handlers.
- *
- * Notes:
- * - This client uses cookies to read the current session.
- * - It can also write updated auth cookies when running in environments that allow it.
- * - The Application layer MUST NOT import this file.
- */
+function mask_cookie_value(value: string): string {
+  if (value.length <= 10) {
+    return "***";
+  }
+  return `${value.slice(0, 6)}...${value.slice(-4)}`;
+}
+
 export async function create_supabase_server_client(): Promise<SupabaseClient> {
   const cookie_store = await cookies();
 
   const supabaseUrl = env.SUPABASE_URL;
   const supabaseKey = env.SUPABASE_PUBLISHABLE_KEY;
-  // ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl) {
     throw new Error("Missing SUPABASE_URL environment variable.");
   }
 
   if (!supabaseKey) {
-    throw new Error(
-      "Missing SUPABASE_PUBLISHABLE_KEY or SUPABASE_ANON_KEY environment variable.",
-    );
+    throw new Error("Missing SUPABASE_PUBLISHABLE_KEY environment variable.");
   }
 
   return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
-      /**
-       * Supabase calls this to READ all cookies from the incoming request.
-       * This is how it retrieves the current auth session (access/refresh tokens)
-       * that Supabase stores in cookies.
-       */
       getAll() {
-        return cookie_store.getAll();
+        const all = cookie_store.getAll();
+
+        if (process.env.NODE_ENV !== "production") {
+          const names = all.map((c) => c.name);
+          const sb_names = names.filter((n) => n.startsWith("sb-"));
+
+          console.log("[supabase][getAll] cookie names:", names);
+          console.log("[supabase][getAll] sb-* cookies:", sb_names);
+
+          // Optional: print masked values for sb cookies only
+          const masked = all
+            .filter((c) => c.name.startsWith("sb-"))
+            .map((c) => ({ name: c.name, value: mask_cookie_value(c.value) }));
+
+          console.log("[supabase][getAll] sb values (masked):", masked);
+        }
+
+        return all;
       },
-      /**
-       * Supabase calls this to WRITE cookies back to the response.
-       * It typically happens when:
-       * - a user signs in / signs out
-       * - tokens are refreshed (access token rotation)
-       * - the session changes
-       *
-       * `cookies_to_set` is an array of cookies (name/value/options)
-       * that Supabase wants Next.js to store.
-       */
+
       setAll(cookies_to_set: Parameters<SetAllCookies>[0]) {
         try {
-          // For every cookie Supabase wants to set, write it into Next.js cookie store.
+          if (env.NODE_ENV !== "production") {
+            const names = cookies_to_set.map((c) => c.name);
+            console.log("[supabase][setAll] setting cookies:", names);
+          }
+
           cookies_to_set.forEach(({ name, value, options }) => {
             cookie_store.set(
               name,
               value,
-              options as Parameters<typeof cookie_store.set>[2],
+              options as Parameters<typeof cookie_store.set>[2]
             );
           });
-        } catch (error){
-          if (process.env.NODE_ENV !== "production") {
-              console.warn("[supabase] Could not set auth cookies in this context.", error);
-            }       
-           }
+        } catch (error) {
+          if (env.NODE_ENV !== "production") {
+            console.warn(
+              "[supabase][setAll] Could not set auth cookies (read-only context).",
+              error
+            );
+          }
+        }
       },
     },
   });

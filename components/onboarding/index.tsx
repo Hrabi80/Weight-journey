@@ -18,6 +18,7 @@ import {
   OnboardingFormValues,
   OnboardingResult,
   onboardingSchema,
+  StepConfig,
   StepId,
 } from "./onboarding-schema";
 import { useOnboardingStepper } from "./use-onboarding-stepper";
@@ -28,14 +29,7 @@ import { BmiStep } from "./steps/bmiStep";
 import { AccountStep } from "./steps/accountStep";
 import { StepperHeader } from "./ui/stepperHeader";
 
-type StepConfig = {
-  id: StepId;
-  title: string;
-  description: string;
-  Icon: ComponentType<SVGProps<SVGSVGElement>>;
-  fields: (keyof OnboardingFormInputs)[];
-  progressIndex: number;
-};
+
 
 interface OnboardingStepperFormProps {
   onComplete?: (data: OnboardingResult) => void | Promise<void>;
